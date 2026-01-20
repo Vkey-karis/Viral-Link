@@ -93,6 +93,9 @@ const cleanAndParseJson = <T>(text: string): T => {
   }
 
   if (start === -1) {
+    if (text.includes("I am sorry") || text.includes("I cannot")) {
+      throw new Error("AI Refusal: The model refused to process this link. content: " + text.substring(0, 100));
+    }
     // No JSON found, try parsing the whole thing (might be a number or string)
     // or just fail.
     return JSON.parse(text);
@@ -197,6 +200,9 @@ export const extractProductInfo = async (url: string, language: string = 'Englis
     - Core Pain Points the product solves
     - Key Benefits
     - Summary of user reviews if available.
+    
+    CRITICAL: If the URL is not accessible via Google Search, use the URL text itself and the domain name to INFER the product details. DO NOT REFUSE.
+    
     Marketplace detection is mandatory.
     Translate everything to ${language}.
     RETURN ONLY A STRICT VALID JSON OBJECT.
