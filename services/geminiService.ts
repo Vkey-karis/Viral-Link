@@ -74,39 +74,85 @@ const callWithRetry = async <T>(fn: () => Promise<T>, retries = 5, delay = 3000)
 };
 
 // Robust JSON Parsing
+// Robust JSON Parsing with Brace Counting
 const cleanAndParseJson = <T>(text: string): T => {
   if (!text) throw new Error("Empty response from AI");
 
-  // 1. Remove Markdown Code Blocks
-  let clean = text.replace(/```json/g, '').replace(/```/g, '');
+  const startObject = text.indexOf('{');
+  const startArray = text.indexOf('[');
 
-  // 2. Find the first potential start of JSON (Object or Array)
-  const firstBrace = clean.indexOf('{');
-  const firstBracket = clean.indexOf('[');
-
+  // Decide where to start
   let start = -1;
-  let end = -1;
-
-  // Determine if it looks like an Object or Array based on which appears first
-  if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
-    start = firstBrace;
-    end = clean.lastIndexOf('}');
-  } else if (firstBracket !== -1) {
-    start = firstBracket;
-    end = clean.lastIndexOf(']');
+  let isObject = false;
+  if (startObject !== -1 && (startArray === -1 || startObject < startArray)) {
+    start = startObject;
+    isObject = true;
+  } else if (startArray !== -1) {
+    start = startArray;
+    isObject = false;
   }
 
-  // 3. Extract and Parse
-  if (start !== -1 && end !== -1 && end > start) {
-    clean = clean.substring(start, end + 1);
-    try {
-      return JSON.parse(clean);
-    } catch (e) {
-      throw new Error("JSON Parse Error: " + (e as Error).message);
+  if (start === -1) {
+    // No JSON found, try parsing the whole thing (might be a number or string)
+    // or just fail.
+    return JSON.parse(text);
+  }
+
+  // Iterate to find the matching closing brace
+  let count = 0;
+  let inString = false;
+  let escape = false;
+  let end = -1;
+
+  const openChar = isObject ? '{' : '[';
+  const closeChar = isObject ? '}' : ']';
+
+  for (let i = start; i < text.length; i++) {
+    const char = text[i];
+
+    if (escape) {
+      escape = false;
+      continue;
+    }
+
+    if (char === '\\') {
+      escape = true;
+      continue;
+    }
+
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+
+    if (!inString) {
+      if (char === openChar) {
+        count++;
+      } else if (char === closeChar) {
+        count--;
+        if (count === 0) {
+          end = i;
+          break;
+        }
+      }
     }
   }
 
-  // Last resort attempt
+  if (end !== -1) {
+    const jsonStr = text.substring(start, end + 1);
+    try {
+      return JSON.parse(jsonStr);
+    } catch (e) {
+      // If our fancy parser failed, fallback to the old "try everything" approach
+      // This can happen if we messed up string counting
+    }
+  }
+
+  // Fallback: Naive cleanup
+  let clean = text.replace(/```json/g, '').replace(/```/g, '');
+  const legacyStart = clean.indexOf(openChar);
+  const legacyEnd = clean.lastIndexOf(closeChar);
+  if (legacyStart !== -1 && legacyEnd !== -1) clean = clean.substring(legacyStart, legacyEnd + 1);
   return JSON.parse(clean);
 };
 
