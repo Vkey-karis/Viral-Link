@@ -103,7 +103,7 @@ export const findTrendingProducts = async (keyword: string): Promise<TrendingPro
 
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.0-flash-exp",
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
@@ -134,7 +134,7 @@ export const extractProductInfo = async (url: string, language: string = 'Englis
 
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.0-flash-exp",
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
@@ -179,7 +179,7 @@ export const generateViralCopy = async (product: ProductData): Promise<AdCopyPac
   `;
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.0-flash-exp",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -223,7 +223,7 @@ export const generateVideoScript = async (product: ProductData, duration: string
   `;
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.0-flash-exp",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -258,7 +258,7 @@ export const generateVideoScript = async (product: ProductData, duration: string
 export const generateSpeech = async (text: string, voiceName: string = 'Puck'): Promise<string> => {
   const ai = getClient();
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash-preview-tts",
+    model: "gemini-2.0-flash-exp", // or specialized TTS model
     contents: [{ parts: [{ text }] }],
     config: {
       responseModalities: [Modality.AUDIO],
