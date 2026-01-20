@@ -173,14 +173,14 @@ export const findTrendingProducts = async (keyword: string): Promise<TrendingPro
 
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash-001",
+      model: "gemini-2.0-flash-exp",
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
       }
     });
     return cleanAndParseJson<TrendingProduct[]>(response.text || "[]");
-  });
+  }, 3, 4000); // Increased initial delay to 4s to handle 429s
 };
 
 // --- Feature 1: Extraction ---
@@ -204,8 +204,8 @@ export const extractProductInfo = async (url: string, language: string = 'Englis
 
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash-001",
-      contents: prompt,
+      model: "gemini-2.0-flash-exp",
+      contents: prompt, // Use text prompt with search tool for extraction from URL context
       config: {
         tools: [{ googleSearch: {} }],
       }
@@ -222,7 +222,7 @@ export const extractProductInfo = async (url: string, language: string = 'Englis
       marketplace: data.marketplace || 'Online Marketplace',
       language: language
     } as ProductData;
-  });
+  }, 3, 4000);
 };
 
 export const generateViralCopy = async (product: ProductData): Promise<AdCopyPackage> => {
@@ -248,14 +248,14 @@ export const generateViralCopy = async (product: ProductData): Promise<AdCopyPac
   `;
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash-exp",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
       }
     });
     return cleanAndParseJson(response.text || "{}");
-  });
+  }, 3, 2000);
 };
 
 export const generateVideoScript = async (product: ProductData, duration: string, template: VideoTemplate = 'VIRAL_HOOK'): Promise<VideoScript> => {
@@ -281,7 +281,7 @@ export const generateVideoScript = async (product: ProductData, duration: string
   `;
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash-exp",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -291,7 +291,7 @@ export const generateVideoScript = async (product: ProductData, duration: string
     result.voiceName = 'Puck';
     result.template = template;
     return result;
-  });
+  }, 3, 2000);
 };
 
 export const generateSpeech = async (text: string, voiceName: string = 'Puck'): Promise<string> => {
