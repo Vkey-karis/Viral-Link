@@ -1,10 +1,17 @@
 
 import { createClient } from '@supabase/supabase-js';
 
+/**
+ * DATABASE CONFIGURATION
+ * Project: hclqrvjrjhyukxxfatdw
+ */
+
 const PROJECT_ID = 'hclqrvjrjhyukxxfatdw';
 const DEFAULT_URL = `https://${PROJECT_ID}.supabase.co`;
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || DEFAULT_URL;
+
+// Injected Anon Key from user configuration
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 /**
@@ -13,11 +20,11 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 const initializeSupabase = () => {
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error("Supabase Configuration Error: Credentials missing.");
-    
+
     return {
       auth: {
         getSession: async () => ({ data: { session: null }, error: null }),
-        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => { } } } }),
         signInWithPassword: async () => ({ data: {}, error: new Error("Supabase credentials not configured.") }),
         signInWithOAuth: async () => ({ data: {}, error: new Error("Supabase credentials not configured.") }),
         signUp: async () => ({ data: {}, error: new Error("Supabase credentials not configured.") }),
@@ -46,12 +53,12 @@ const initializeSupabase = () => {
   } catch (err) {
     console.error("Failed to initialize Supabase client instance:", err);
     return {
-       auth: { 
-         getSession: async () => ({ data: { session: null } }), 
-         onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }) 
-       },
-       functions: { invoke: async () => ({ data: null, error: err }) },
-       from: () => ({ select: () => ({ eq: () => ({ single: async () => ({ data: null }) }) }) })
+      auth: {
+        getSession: async () => ({ data: { session: null } }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => { } } } })
+      },
+      functions: { invoke: async () => ({ data: null, error: err }) },
+      from: () => ({ select: () => ({ eq: () => ({ single: async () => ({ data: null }) }) }) })
     } as any;
   }
 };

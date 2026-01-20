@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { supabase } from '../services/supabaseClient';
-import { LogIn, UserPlus, Loader2, Sparkles, ShieldCheck, AlertCircle, ExternalLink, CheckCircle2, Info } from 'lucide-react';
+import { LogIn, UserPlus, Loader2, Sparkles, ShieldCheck, AlertCircle, ExternalLink, CheckCircle2, Info, Github } from 'lucide-react';
 
 interface Props {
   onAuthComplete: () => void;
@@ -38,7 +38,7 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
     }
   };
 
-  const handleOAuthLogin = async (provider: 'google') => {
+  const handleOAuthLogin = async (provider: 'google' | 'github') => {
     setLoading(true);
     setError(null);
     setIs403(false);
@@ -47,10 +47,10 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
         provider: provider,
         options: {
           redirectTo: window.location.origin,
-          queryParams: {
+          queryParams: provider === 'google' ? {
             access_type: 'offline',
             prompt: 'consent',
-          },
+          } : undefined,
         }
       });
       if (error) throw error;
@@ -68,7 +68,7 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-20">
       <div className="w-full max-w-md space-y-8 glass-card p-10 rounded-[3rem] border-white/10 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-
+        
         <div className="text-center space-y-4">
           <div className="inline-flex items-center justify-center p-4 bg-indigo-600/10 rounded-2xl mb-2">
             <Sparkles className="w-8 h-8 text-indigo-500" />
@@ -87,14 +87,14 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
                 {is403 ? "OAuth 403: Access Disallowed" : error}
               </p>
             </div>
-
+            
             {is403 && (
               <div className="pt-4 border-t border-red-500/10 space-y-4">
                 <div className="flex items-center gap-2 text-indigo-400">
                   <Info className="w-3 h-3" />
                   <span className="text-[9px] font-black uppercase tracking-widest">Fix Checklist</span>
                 </div>
-
+                
                 <ul className="space-y-3">
                   <li className="flex gap-2 items-start">
                     <CheckCircle2 className="w-3 h-3 text-slate-600 shrink-0 mt-0.5" />
@@ -110,9 +110,9 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
                   </li>
                 </ul>
 
-                <a
-                  href="https://supabase.com/dashboard/project/hclqrvjrjhyukxxfatdw/auth/providers"
-                  target="_blank"
+                <a 
+                  href="https://supabase.com/dashboard/project/hclqrvjrjhyukxxfatdw/auth/providers" 
+                  target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full py-2 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black text-white hover:bg-white/10 transition-all uppercase tracking-widest"
                 >
@@ -124,7 +124,7 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
         )}
 
         <div className="grid grid-cols-1 gap-4">
-          <button
+          <button 
             onClick={() => handleOAuthLogin('google')}
             disabled={loading}
             className="w-full py-4 bg-white hover:bg-slate-100 text-slate-900 font-bold rounded-2xl transition-all flex items-center justify-center gap-3 shadow-xl disabled:opacity-50 ring-1 ring-black/5"
@@ -149,6 +149,15 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
             </svg>
             <span className="tracking-tight">Sign in with Google</span>
           </button>
+
+          <button 
+            onClick={() => handleOAuthLogin('github')}
+            disabled={loading}
+            className="w-full py-4 bg-[#181717] hover:bg-[#2c2c2c] text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-3 shadow-xl disabled:opacity-50 border border-white/5"
+          >
+            <Github className="w-5 h-5" />
+            <span className="tracking-tight">Sign in with GitHub</span>
+          </button>
         </div>
 
         <div className="relative py-4">
@@ -163,9 +172,9 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
         <form onSubmit={handleAuth} className="space-y-6">
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
-            <input
-              type="email"
-              value={email}
+            <input 
+              type="email" 
+              value={email} 
               onChange={(e) => setEmail(e.target.value)}
               className="w-full p-4 bg-slate-950 border border-white/5 rounded-2xl text-white font-bold focus:border-indigo-500 focus:outline-none transition-all"
               placeholder="operator@nexus.com"
@@ -175,9 +184,9 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
 
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Secure Password</label>
-            <input
-              type="password"
-              value={password}
+            <input 
+              type="password" 
+              value={password} 
               onChange={(e) => setPassword(e.target.value)}
               className="w-full p-4 bg-slate-950 border border-white/5 rounded-2xl text-white font-bold focus:border-indigo-500 focus:outline-none transition-all"
               placeholder="••••••••"
@@ -185,8 +194,8 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
             />
           </div>
 
-          <button
-            type="submit"
+          <button 
+            type="submit" 
             disabled={loading}
             className="w-full py-5 bg-indigo-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl hover:scale-[1.02] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
           >
@@ -195,7 +204,7 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
         </form>
 
         <div className="text-center pt-4">
-          <button
+          <button 
             onClick={() => setIsLogin(!isLogin)}
             className="text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-indigo-400 transition-colors"
           >

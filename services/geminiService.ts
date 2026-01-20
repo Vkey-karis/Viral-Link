@@ -3,8 +3,6 @@ import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { ProductData, AdCopyPackage, VideoScript, TrendingProduct, VideoTemplate } from "../types";
 
 const getClient = () => new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
-const MODEL_NAME = import.meta.env.VITE_GEMINI_MODEL || "gemini-2.0-flash-exp";
-const VEO_MODEL_NAME = import.meta.env.VITE_VEO_MODEL || "veo-3.1-generate-preview";
 
 /**
  * Custom Error Class for Gemini API issues
@@ -47,7 +45,7 @@ export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, 
 /**
  * Robust Retry Wrapper for API calls
  */
-const callWithRetry = async <T>(fn: () => Promise<T>, retries = 5, delay = 5000): Promise<T> => {
+const callWithRetry = async <T>(fn: () => Promise<T>, retries = 5, delay = 3000): Promise<T> => {
   try {
     return await fn();
   } catch (err: any) {
@@ -67,9 +65,8 @@ const callWithRetry = async <T>(fn: () => Promise<T>, retries = 5, delay = 5000)
       msg.includes('overloaded');
 
     if (retries > 0 && isRetryable) {
-      console.warn(`API Rate Limit Hit (${code}). Retrying in ${delay / 1000}s... (${retries} retries left)`);
       await sleep(delay);
-      return callWithRetry(fn, retries - 1, delay * 2);
+      return callWithRetry(fn, retries - 1, delay * 1.5);
     }
 
     if (code === 429) {
@@ -82,29 +79,10 @@ const callWithRetry = async <T>(fn: () => Promise<T>, retries = 5, delay = 5000)
 
 const cleanAndParseJson = <T>(text: string): T => {
   if (!text) throw new Error("Empty response from AI");
-  // Remove markdown code blocks
   let cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-
-  // Find the first '[' or '{'
-  const firstOpenBracket = cleanText.indexOf('[');
-  const firstOpenBrace = cleanText.indexOf('{');
-
-  let start = -1;
-  let end = -1;
-
-  // Determine if it's likely an array or object based on which comes first
-  if (firstOpenBracket !== -1 && (firstOpenBrace === -1 || firstOpenBracket < firstOpenBrace)) {
-    start = firstOpenBracket;
-    end = cleanText.lastIndexOf(']');
-  } else if (firstOpenBrace !== -1) {
-    start = firstOpenBrace;
-    end = cleanText.lastIndexOf('}');
-  }
-
-  if (start !== -1 && end !== -1) {
-    cleanText = cleanText.substring(start, end + 1);
-  }
-
+  const start = cleanText.indexOf(cleanText.startsWith('[') ? '[' : '{');
+  const end = cleanText.lastIndexOf(cleanText.startsWith('[') ? ']' : '}');
+  if (start !== -1 && end !== -1) cleanText = cleanText.substring(start, end + 1);
   return JSON.parse(cleanText);
 };
 
@@ -125,21 +103,13 @@ export const findTrendingProducts = async (keyword: string): Promise<TrendingPro
 
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: MODEL_NAME,
+      model: "gemini-3-flash-preview",
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
       }
     });
-    console.log("Raw AI Response for Trending Products:", response.text);
-    try {
-      const parsed = cleanAndParseJson<TrendingProduct[]>(response.text || "[]");
-      console.log("Parsed Trending Products:", parsed);
-      return parsed;
-    } catch (e) {
-      console.error("JSON Parse Error:", e);
-      throw new Error("Failed to parse AI response");
-    }
+    return cleanAndParseJson<TrendingProduct[]>(response.text || "[]");
   });
 };
 
@@ -164,7 +134,7 @@ export const extractProductInfo = async (url: string, language: string = 'Englis
 
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: MODEL_NAME,
+      model: "gemini-3-flash-preview",
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
@@ -209,7 +179,7 @@ export const generateViralCopy = async (product: ProductData): Promise<AdCopyPac
   `;
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: MODEL_NAME,
+      model: "gemini-3-flash-preview",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -253,7 +223,7 @@ export const generateVideoScript = async (product: ProductData, duration: string
   `;
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: MODEL_NAME,
+      model: "gemini-3-flash-preview",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -288,7 +258,7 @@ export const generateVideoScript = async (product: ProductData, duration: string
 export const generateSpeech = async (text: string, voiceName: string = 'Puck'): Promise<string> => {
   const ai = getClient();
   const response = await ai.models.generateContent({
-    model: MODEL_NAME,
+    model: "gemini-2.5-flash-preview-tts",
     contents: [{ parts: [{ text }] }],
     config: {
       responseModalities: [Modality.AUDIO],
@@ -310,14 +280,14 @@ export const generateVeoVideo = async (visualPrompt: string, product: ProductDat
   if (isImageToVideo && product.imageData && product.imageMimeType) {
     const base64Data = product.imageData.split(',')[1];
     operation = await ai.models.generateVideos({
-      model: VEO_MODEL_NAME,
+      model: 'veo-3.1-generate-preview',
       prompt: enhancedPrompt,
       image: { imageBytes: base64Data, mimeType: product.imageMimeType },
       config: { numberOfVideos: 1, resolution: '720p', aspectRatio: '9:16' }
     });
   } else {
     operation = await ai.models.generateVideos({
-      model: VEO_MODEL_NAME,
+      model: 'veo-3.1-generate-preview',
       prompt: enhancedPrompt,
       config: { numberOfVideos: 1, resolution: '720p', aspectRatio: '9:16' }
     });
