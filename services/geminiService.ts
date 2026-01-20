@@ -173,7 +173,7 @@ export const findTrendingProducts = async (keyword: string): Promise<TrendingPro
 
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-1.5-flash-latest",
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
@@ -204,7 +204,7 @@ export const extractProductInfo = async (url: string, language: string = 'Englis
 
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-1.5-flash-latest",
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
