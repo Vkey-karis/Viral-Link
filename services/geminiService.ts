@@ -260,7 +260,14 @@ export const generateViralCopy = async (product: ProductData): Promise<AdCopyPac
         responseMimeType: "application/json",
       }
     });
-    return cleanAndParseJson(response.text || "{}");
+    const data = cleanAndParseJson<AdCopyPackage>(response.text || "{}");
+    return {
+      hooks: Array.isArray(data.hooks) ? data.hooks : [],
+      shortCopy: data.shortCopy || '',
+      longCopy: data.longCopy || '',
+      ctaLines: Array.isArray(data.ctaLines) ? data.ctaLines : [],
+      hashtags: Array.isArray(data.hashtags) ? data.hashtags : []
+    };
   }, 3, 2000);
 };
 
@@ -294,6 +301,7 @@ export const generateVideoScript = async (product: ProductData, duration: string
       }
     });
     const result = cleanAndParseJson<VideoScript>(response.text || "{}");
+    result.scenes = Array.isArray(result.scenes) ? result.scenes : [];
     result.voiceName = 'Puck';
     result.template = template;
     return result;
