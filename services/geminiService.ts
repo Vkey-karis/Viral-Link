@@ -303,22 +303,63 @@ export const generateVideoScript = async (product: ProductData, duration: string
       ]
     }
     ENSURE the "scenes" array is NOT empty. Generate at least 5 scenes.
+    ENSURE the "scenes" array is NOT empty. Generate at least 5 scenes.
     If product details are vague, use CREATIVE FREEDOM to invent plausible visuals and specialized benefits based on the product name: "${product.title}". DO NOT RETURN EMPTY SCENES.
   `;
-  return callWithRetry(async () => {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
+
+  try {
+    return await callWithRetry(async () => {
+      const response = await ai.models.generateContent({
+        model: "gemini-2.0-flash-exp",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+        }
+      });
+      const result = cleanAndParseJson<VideoScript>(response.text || "{}");
+      if (!result.scenes || !Array.isArray(result.scenes) || result.scenes.length === 0) {
+        throw new Error("Empty scenes generated");
       }
-    });
-    const result = cleanAndParseJson<VideoScript>(response.text || "{}");
-    result.scenes = Array.isArray(result.scenes) ? result.scenes : [];
-    result.voiceName = 'Puck';
-    result.template = template;
-    return result;
-  }, 3, 2000);
+      result.scenes = Array.isArray(result.scenes) ? result.scenes : [];
+      result.voiceName = 'Puck';
+      result.template = template;
+      return result;
+    }, 3, 2000);
+  } catch (error) {
+    console.error("Gemini Script Gen Failed, using fallback:", error);
+    // Fallback Template
+    return {
+      duration: duration as any,
+      voiceName: 'Puck',
+      template: template,
+      scenes: [
+        {
+          visual: `Close up of ${product.title} in a well-lit environment.`,
+          audio: `Stop scrolling! You need to see this.`,
+          overlayText: "STOP SCROLLING 🛑",
+          transition: "None"
+        },
+        {
+          visual: `Demonstration of ${product.title} being used efficiently.`,
+          audio: `This is the solution we've all been waiting for.`,
+          overlayText: "GAME CHANGER 🚀",
+          transition: "Whip Pan"
+        },
+        {
+          visual: `Comparison shot showing the old way vs the new way with ${product.title}.`,
+          audio: `Forget about the old struggle. This is the future.`,
+          overlayText: "BEFORE vs AFTER",
+          transition: "Split Screen"
+        },
+        {
+          visual: `Happy user enjoying ${product.title}.`,
+          audio: `Get yours today and feel the difference.`,
+          overlayText: "LINK IN BIO 🔗",
+          transition: "Fade"
+        }
+      ]
+    };
+  }
 };
 
 export const generateSpeech = async (text: string, voiceName: string = 'Puck'): Promise<string> => {
