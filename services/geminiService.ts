@@ -189,34 +189,55 @@ export const findTrendingProducts = async (keyword: string): Promise<TrendingPro
 // --- Feature 1: Extraction ---
 export const extractProductInfo = async (url: string, language: string = 'English'): Promise<ProductData> => {
   const ai = getClient();
+
+  const productSchema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      price: { type: Type.STRING },
+      description: { type: Type.STRING },
+      features: { type: Type.ARRAY, items: { type: Type.STRING } },
+      painPoints: { type: Type.ARRAY, items: { type: Type.STRING } },
+      benefits: { type: Type.ARRAY, items: { type: Type.STRING } },
+      reviewsSummary: { type: Type.STRING },
+      marketplace: { type: Type.STRING },
+    }
+  };
+
   const prompt = `
     Deep scan this product URL: ${url}
-    Extract all marketing intelligence.
+    
+    TASK: Extract all marketing intelligence.
+    
+    STRICT REQUIREMENTS:
+    1.  **ACCURACY**: Extract actual data from the page. If the URL is not accessible, infer from the URL structure and common knowledge about such products.
+    2.  **LANGUAGE**: Translate ALL output to ${language}.
+    3.  **LISTS**: Ensure 'features', 'painPoints', and 'benefits' have at least 3-5 items each.
+    
     Identify:
     - Title
-    - Price
+    - Price (with currency)
     - Detailed Description
     - Top 5 Specific Features
     - Core Pain Points the product solves
     - Key Benefits
     - Summary of user reviews if available.
-    
-    CRITICAL: If the URL is not accessible via Google Search, use the URL text itself and the domain name to INFER the product details. DO NOT REFUSE.
-    
-    Marketplace detection is mandatory.
-    Translate everything to ${language}.
-    RETURN ONLY A STRICT VALID JSON OBJECT.
+    - Marketplace Name (e.g. Amazon, Jumia)
   `;
 
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
       model: "gemini-2.0-flash-exp",
-      contents: prompt, // Use text prompt with search tool for extraction from URL context
+      contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
+        responseMimeType: "application/json",
+        responseSchema: productSchema
       }
     });
-    const data = cleanAndParseJson<any>(response.text || "{}");
+
+    const data = JSON.parse(response.text || "{}");
+
     return {
       title: data.title || 'Product Analysis',
       price: data.price || 'Contact for Price',
@@ -233,6 +254,19 @@ export const extractProductInfo = async (url: string, language: string = 'Englis
 
 export const generateViralCopy = async (product: ProductData): Promise<AdCopyPackage> => {
   const ai = getClient();
+
+  const copySchema = {
+    type: Type.OBJECT,
+    properties: {
+      hooks: { type: Type.ARRAY, items: { type: Type.STRING } },
+      shortCopy: { type: Type.STRING },
+      longCopy: { type: Type.STRING },
+      ctaLines: { type: Type.ARRAY, items: { type: Type.STRING } },
+      hashtags: { type: Type.ARRAY, items: { type: Type.STRING } },
+    },
+    required: ["hooks", "shortCopy", "longCopy", "ctaLines", "hashtags"]
+  };
+
   const prompt = `
     Act as a Direct Response Marketing Genius.
     Create a viral ad package for the product: "${product.title || 'Innovative Product'}".
@@ -251,17 +285,21 @@ export const generateViralCopy = async (product: ProductData): Promise<AdCopyPac
     4. FRAMEWORK: Use PAS (Problem-Agitation-Solution) for the long copy and AIDA for the hooks.
     5. DATA INTEGRITY: loops or variables must not be returned. Return filled strings.
     
-    RETURN ONLY A STRICT VALID JSON OBJECT with keys: "hooks", "shortCopy", "longCopy", "ctaLines", "hashtags".
+    Generate the response strictly conforming to the JSON schema provided.
   `;
+
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
       model: "gemini-2.0-flash-exp",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
+        responseSchema: copySchema
       }
     });
-    const data = cleanAndParseJson<AdCopyPackage>(response.text || "{}");
+
+    const data = JSON.parse(response.text || "{}");
+
     return {
       hooks: Array.isArray(data.hooks) ? data.hooks : [],
       shortCopy: data.shortCopy || '',
@@ -274,37 +312,45 @@ export const generateViralCopy = async (product: ProductData): Promise<AdCopyPac
 
 export const generateVideoScript = async (product: ProductData, duration: string, template: VideoTemplate = 'VIRAL_HOOK'): Promise<VideoScript> => {
   const ai = getClient();
+
+  const scriptSchema = {
+    type: Type.OBJECT,
+    properties: {
+      scenes: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            visual: { type: Type.STRING, description: "Detailed visual description for the scene." },
+            audio: { type: Type.STRING, description: "Voiceover script for the scene." },
+            overlayText: { type: Type.STRING, description: "Text overlay on the video." },
+            transition: { type: Type.STRING, description: "Transition to the next scene." },
+          },
+          required: ["visual", "audio", "overlayText", "transition"],
+        },
+      },
+    },
+    required: ["scenes"],
+  };
+
   const prompt = `
-    Act as a Viral Video Production Director for TikTok and IG Reels.
-    Produce a ${duration} video script for: "${product.title}".
-    
-    CONTEXT:
-    - Description: ${product.description || 'A revolutionary new product.'}
-    - Top Features: ${(product.features && product.features.length > 0) ? product.features.join(", ") : "Innovative design, Premium materials"}
-    - Pain Points: ${(product.painPoints && product.painPoints.length > 0) ? product.painPoints.join(", ") : "Inefficiency, Frustration"}
-    - Core Benefits: ${(product.benefits && product.benefits.length > 0) ? product.benefits.join(", ") : "Efficiency, Peace of mind"}
-    - Template Style: ${template}
-    
-    STRICT PRODUCTION REQUIREMENTS:
-    1. HYPER-SPECIFICITY: Do not use "a person using the product." Use "A close-up of the [Specific Feature] in action" or "Visualizing the [Specific Pain Point] being solved."
-    2. TEMPLATE ADHERENCE: If template is 'BEFORE_AFTER', clearly contrast the pain point and benefit. If 'UNBOXING', focus on the tactile features.
-    3. TRANSITIONS: Every scene MUST include a professional transition (e.g., "Fast Zoom", "Whip Pan", "Glitch").
-    4. VEO PROMPTS: The 'visual' field must be a high-quality prompt for the Veo image-to-video engine.
-    
-    RETURN ONLY A STRICT VALID JSON OBJECT with this EXACT schema:
-    {
-      "scenes": [
-        {
-          "visual": "Detailed description of the visual scene...",
-          "audio": "Voiceover line...",
-          "overlayText": "Text on screen...",
-          "transition": "Transition type..."
-        }
-      ]
-    }
-    ENSURE the "scenes" array is NOT empty. Generate at least 5 scenes.
-    ENSURE the "scenes" array is NOT empty. Generate at least 5 scenes.
-    If product details are vague, use CREATIVE FREEDOM to invent plausible visuals and specialized benefits based on the product name: "${product.title}". DO NOT RETURN EMPTY SCENES.
+    Act as a Viral Video Production Director.
+    Create a ${duration} video script for the product: "${product.title}".
+
+    PRODUCT DATA (YOU MUST USE THIS):
+    - Description: ${product.description}
+    - Features: ${(product.features && product.features.length > 0) ? product.features.join(", ") : "Innovative features"}
+    - Pain Points: ${(product.painPoints && product.painPoints.length > 0) ? product.painPoints.join(", ") : "Common struggles"}
+    - Benefits: ${(product.benefits && product.benefits.length > 0) ? product.benefits.join(", ") : "Key advantages"}
+    - Template: ${template}
+
+    STRICT INSTRUCTIONS:
+    1.  **RELEVANCE**: The 'visual' and 'audio' fields MUST explicitly reference the product's specific features. Do NOT use generic phrases like "using the device". Instead use "Pressing the [Feature Name] button" or "Showing the [Benefit] result".
+    2.  **SCENE COUNT**: Generate exactly 5-8 scenes for a ${duration} video.
+    3.  **HOOK**: The first scene detailed visual must be a scroll-stopper related to "${product.painPoints?.[0] || 'the problem'}".
+    4.  **CTA**: The final scene must include a strong Call to Action.
+
+    Generate the response strictly conforming to the JSON schema provided.
   `;
 
   try {
@@ -314,14 +360,25 @@ export const generateVideoScript = async (product: ProductData, duration: string
         contents: prompt,
         config: {
           responseMimeType: "application/json",
+          responseSchema: scriptSchema,
         }
       });
-      const result = cleanAndParseJson<VideoScript>(response.text || "{}");
+
+      const result = JSON.parse(response.text || "{}");
+
       if (!result.scenes || !Array.isArray(result.scenes) || result.scenes.length === 0) {
         throw new Error("Empty scenes generated");
       }
-      result.scenes = Array.isArray(result.scenes) ? result.scenes : [];
-      result.voiceName = 'Puck';
+
+      // Post-processing to ensure no hallucinated fields
+      result.scenes = result.scenes.map(s => ({
+        visual: s.visual || "Product showcase",
+        audio: s.audio || "",
+        overlayText: s.overlayText || "",
+        transition: s.transition || "Cut"
+      }));
+
+      result.voiceName = 'Puck'; // Default defaults
       result.template = template;
       return result;
     }, 3, 2000);
