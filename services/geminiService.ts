@@ -291,7 +291,19 @@ export const generateVideoScript = async (product: ProductData, duration: string
     3. TRANSITIONS: Every scene MUST include a professional transition (e.g., "Fast Zoom", "Whip Pan", "Glitch").
     4. VEO PROMPTS: The 'visual' field must be a high-quality prompt for the Veo image-to-video engine.
     
-    RETURN ONLY A STRICT VALID JSON OBJECT.
+    RETURN ONLY A STRICT VALID JSON OBJECT with this EXACT schema:
+    {
+      "scenes": [
+        {
+          "visual": "Detailed description of the visual scene...",
+          "audio": "Voiceover line...",
+          "overlayText": "Text on screen...",
+          "transition": "Transition type..."
+        }
+      ]
+    }
+    ENSURE the "scenes" array is NOT empty. Generate at least 5 scenes.
+    If product details are vague, use CREATIVE FREEDOM to invent plausible visuals and specialized benefits based on the product name: "${product.title}". DO NOT RETURN EMPTY SCENES.
   `;
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
