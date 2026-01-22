@@ -114,7 +114,7 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext }) => {
 
   if (loadingCopy && !adCopy) {
     return (
-      <div className="flex flex-col items-center justify-center h-[500px] space-y-8 animate-pulse">
+      <div key="loading" className="flex flex-col items-center justify-center h-[500px] space-y-8 animate-pulse">
         <div className="w-24 h-24 bg-indigo-500/10 rounded-full flex items-center justify-center border border-indigo-500/20">
           <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
         </div>
@@ -128,7 +128,7 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext }) => {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-[500px] space-y-6 animate-in fade-in">
+      <div key="error" className="flex flex-col items-center justify-center h-[500px] space-y-6 animate-in fade-in">
         <div className="p-4 bg-red-500/10 rounded-full border border-red-500/20">
           <AlertTriangle className="w-12 h-12 text-red-400" />
         </div>
@@ -149,7 +149,7 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext }) => {
   if (!adCopy) return null;
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-12 pb-20 px-4">
+    <div key="content" className="w-full max-w-7xl mx-auto space-y-12 pb-20 px-4">
 
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
