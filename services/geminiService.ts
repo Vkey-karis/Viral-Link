@@ -235,22 +235,23 @@ export const generateViralCopy = async (product: ProductData): Promise<AdCopyPac
   const ai = getClient();
   const prompt = `
     Act as a Direct Response Marketing Genius.
-    Create a viral ad package for the product: "${product.title}".
+    Create a viral ad package for the product: "${product.title || 'Innovative Product'}".
     
     PRODUCT DETAILS:
     - Price: ${product.price}
     - Marketplace: ${product.marketplace}
-    - Features: ${(product.features || []).join(", ")}
-    - Pain Points: ${(product.painPoints || []).join(", ")}
-    - Benefits: ${(product.benefits || []).join(", ")}
+    - Features: ${(product.features && product.features.length > 0) ? product.features.join(", ") : "Innovative, Easy to use, Premium quality"}
+    - Pain Points: ${(product.painPoints && product.painPoints.length > 0) ? product.painPoints.join(", ") : "Inconvenience, Wasted time, Low quality alternatives"}
+    - Benefits: ${(product.benefits && product.benefits.length > 0) ? product.benefits.join(", ") : "Saves time, Improves lifestyle, Professional results"}
     
     STRICT REQUIREMENTS:
     1. UNIQUENESS: Avoid generic marketing fluff like "best quality" or "revolutionary".
-    2. RELEVANCY: Every hook and line MUST reference a specific feature or pain point listed above.
+    2. RELEVANCY: Every hook and line MUST reference a specific feature or pain point lists above.
     3. LANGUAGE: Use ${product.language || 'English'}.
     4. FRAMEWORK: Use PAS (Problem-Agitation-Solution) for the long copy and AIDA for the hooks.
+    5. DATA INTEGRITY: loops or variables must not be returned. Return filled strings.
     
-    RETURN ONLY A STRICT VALID JSON OBJECT.
+    RETURN ONLY A STRICT VALID JSON OBJECT with keys: "hooks", "shortCopy", "longCopy", "ctaLines", "hashtags".
   `;
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
@@ -278,10 +279,10 @@ export const generateVideoScript = async (product: ProductData, duration: string
     Produce a ${duration} video script for: "${product.title}".
     
     CONTEXT:
-    - Description: ${product.description}
-    - Top Features: ${(product.features || []).join(", ")}
-    - Pain Points: ${(product.painPoints || []).join(", ")}
-    - Core Benefits: ${(product.benefits || []).join(", ")}
+    - Description: ${product.description || 'A revolutionary new product.'}
+    - Top Features: ${(product.features && product.features.length > 0) ? product.features.join(", ") : "Innovative design, Premium materials"}
+    - Pain Points: ${(product.painPoints && product.painPoints.length > 0) ? product.painPoints.join(", ") : "Inefficiency, Frustration"}
+    - Core Benefits: ${(product.benefits && product.benefits.length > 0) ? product.benefits.join(", ") : "Efficiency, Peace of mind"}
     - Template Style: ${template}
     
     STRICT PRODUCTION REQUIREMENTS:
