@@ -438,7 +438,7 @@ export const generateSpeech = async (text: string, voiceName: string = 'Puck'): 
       model: "gemini-2.0-flash-exp",
       contents: [{ parts: [{ text }] }],
       config: {
-        responseModalities: [Modality.AUDIO],
+        // responseModalities: [Modality.AUDIO], // Removed to fix 400 error
         speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } },
       },
     });
