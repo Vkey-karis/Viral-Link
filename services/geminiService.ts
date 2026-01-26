@@ -431,21 +431,29 @@ export const generateVideoScript = async (product: ProductData, duration: string
 
 export const generateSpeech = async (text: string, voiceName: string = 'Puck'): Promise<string> => {
   const ai = getClient();
-  // Using gemini-2.0-flash-exp for Audio capability
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash-exp",
-    contents: [{ parts: [{ text }] }],
-    config: {
-      responseModalities: [Modality.AUDIO],
-      speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } },
-    },
-  });
-  const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-  if (!base64Audio) throw new Error("Audio generation failed.");
-  const binaryString = window.atob(base64Audio);
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-  return URL.createObjectURL(new Blob([bytes], { type: 'audio/wav' }));
+
+  try {
+    // Using gemini-2.0-flash-exp for Audio capability
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash-exp",
+      contents: [{ parts: [{ text }] }],
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } },
+      },
+    });
+
+    const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    if (!base64Audio) throw new Error("Audio generation failed - no audio data returned.");
+
+    const binaryString = window.atob(base64Audio);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+    return URL.createObjectURL(new Blob([bytes], { type: 'audio/wav' }));
+  } catch (error: any) {
+    console.error('Audio generation error:', error);
+    throw new Error(`Failed to generate audio: ${error.message || 'Unknown error'}`);
+  }
 };
 
 export const generateVeoVideo = async (visualPrompt: string, product: ProductData, isImageToVideo: boolean = false): Promise<string> => {
