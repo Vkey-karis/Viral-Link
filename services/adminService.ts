@@ -212,3 +212,84 @@ export const recordEarning = async (
         return false;
     }
 };
+
+/**
+ * Update user's subscription tier
+ */
+export const updateUserSubscription = async (
+    userId: string,
+    tier: 'free' | 'premium',
+    credits?: number
+): Promise<boolean> => {
+    try {
+        const updateData: any = { subscription_tier: tier };
+        if (credits !== undefined) {
+            updateData.credits = credits;
+        }
+
+        const { error } = await supabase
+            .from('profiles')
+            .update(updateData)
+            .eq('id', userId);
+
+        if (error) {
+            console.error('Error updating subscription:', error);
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Error in updateUserSubscription:', error);
+        return false;
+    }
+};
+
+/**
+ * Delete a user (admin only - requires service role key on backend)
+ * Note: This will only work if you have a Supabase Edge Function to handle user deletion
+ * For now, we'll just deactivate the user by removing their profile
+ */
+export const deleteUser = async (userId: string): Promise<boolean> => {
+    try {
+        // Delete user's profile (this will cascade delete related data)
+        const { error } = await supabase
+            .from('profiles')
+            .delete()
+            .eq('id', userId);
+
+        if (error) {
+            console.error('Error deleting user:', error);
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Error in deleteUser:', error);
+        return false;
+    }
+};
+
+/**
+ * Update user's credits
+ */
+export const updateUserCredits = async (
+    userId: string,
+    credits: number
+): Promise<boolean> => {
+    try {
+        const { error } = await supabase
+            .from('profiles')
+            .update({ credits })
+            .eq('id', userId);
+
+        if (error) {
+            console.error('Error updating credits:', error);
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Error in updateUserCredits:', error);
+        return false;
+    }
+};

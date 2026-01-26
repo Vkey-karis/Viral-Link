@@ -10,13 +10,17 @@ import {
     RefreshCw,
     Loader2,
     ChevronLeft,
-    Calendar,
-    Filter
+    Edit,
+    Trash2,
+    X,
+    Save
 } from 'lucide-react';
 import {
     getAdminStats,
     getAllUsers,
     getAllEarnings,
+    updateUserSubscription,
+    deleteUser,
     AdminStats,
     UserWithProfile,
     EarningsRecord
@@ -33,6 +37,14 @@ const AdminDashboard: React.FC<Props> = ({ onBack }) => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterTier, setFilterTier] = useState<'all' | 'free' | 'premium'>('all');
+
+    // User management state
+    const [selectedUser, setSelectedUser] = useState<UserWithProfile | null>(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [editCredits, setEditCredits] = useState(0);
+    const [editTier, setEditTier] = useState<'free' | 'premium'>('free');
+    const [actionLoading, setActionLoading] = useState(false);
 
     useEffect(() => {
         loadDashboardData();
@@ -76,6 +88,52 @@ const AdminDashboard: React.FC<Props> = ({ onBack }) => {
             month: 'short',
             day: 'numeric'
         });
+    };
+
+    const handleEditUser = (user: UserWithProfile) => {
+        setSelectedUser(user);
+        setEditCredits(user.credits);
+        setEditTier(user.subscription_tier);
+        setShowEditModal(true);
+    };
+
+    const handleDeleteUser = (user: UserWithProfile) => {
+        setSelectedUser(user);
+        setShowDeleteModal(true);
+    };
+
+    const confirmEdit = async () => {
+        if (!selectedUser) return;
+        setActionLoading(true);
+
+        const success = await updateUserSubscription(selectedUser.id, editTier, editCredits);
+
+        if (success) {
+            await loadDashboardData();
+            setShowEditModal(false);
+            setSelectedUser(null);
+        } else {
+            alert('Failed to update user');
+        }
+
+        setActionLoading(false);
+    };
+
+    const confirmDelete = async () => {
+        if (!selectedUser) return;
+        setActionLoading(true);
+
+        const success = await deleteUser(selectedUser.id);
+
+        if (success) {
+            await loadDashboardData();
+            setShowDeleteModal(false);
+            setSelectedUser(null);
+        } else {
+            alert('Failed to delete user');
+        }
+
+        setActionLoading(false);
     };
 
     if (loading) {
@@ -239,6 +297,7 @@ const AdminDashboard: React.FC<Props> = ({ onBack }) => {
                                         <th className="text-left py-4 px-4 text-xs font-black text-slate-500 uppercase tracking-widest">Videos</th>
                                         <th className="text-left py-4 px-4 text-xs font-black text-slate-500 uppercase tracking-widest">Spent</th>
                                         <th className="text-left py-4 px-4 text-xs font-black text-slate-500 uppercase tracking-widest">Joined</th>
+                                        <th className="text-left py-4 px-4 text-xs font-black text-slate-500 uppercase tracking-widest">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -254,8 +313,8 @@ const AdminDashboard: React.FC<Props> = ({ onBack }) => {
                                             </td>
                                             <td className="py-4 px-4">
                                                 <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase ${user.subscription_tier === 'premium'
-                                                        ? 'bg-purple-500/20 text-purple-400'
-                                                        : 'bg-slate-500/20 text-slate-400'
+                                                    ? 'bg-purple-500/20 text-purple-400'
+                                                    : 'bg-slate-500/20 text-slate-400'
                                                     }`}>
                                                     {user.subscription_tier}
                                                 </span>
@@ -264,6 +323,25 @@ const AdminDashboard: React.FC<Props> = ({ onBack }) => {
                                             <td className="py-4 px-4 text-sm font-bold">{user.total_videos_generated || 0}</td>
                                             <td className="py-4 px-4 text-sm font-bold text-green-400">{formatCurrency(user.total_spent || 0)}</td>
                                             <td className="py-4 px-4 text-sm text-slate-400">{formatDate(user.user_created_at)}</td>
+                                            <td className="py-4 px-4">
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => handleEditUser(user)}
+                                                        className="p-2 bg-indigo-600/20 text-indigo-400 rounded-lg hover:bg-indigo-600/30 transition-colors"
+                                                        title="Edit user"
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteUser(user)}
+                                                        disabled={user.is_admin}
+                                                        className="p-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                        title={user.is_admin ? "Cannot delete admin" : "Delete user"}
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -317,6 +395,123 @@ const AdminDashboard: React.FC<Props> = ({ onBack }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Edit User Modal */}
+            {showEditModal && selectedUser && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="glass-card rounded-3xl p-1 border-white/10 max-w-md w-full">
+                        <div className="bg-slate-950 rounded-[1.4rem] p-8">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-2xl font-black uppercase">Edit User</h3>
+                                <button
+                                    onClick={() => setShowEditModal(false)}
+                                    className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Email</label>
+                                    <input
+                                        type="text"
+                                        value={selectedUser.email}
+                                        disabled
+                                        className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-slate-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Subscription Tier</label>
+                                    <select
+                                        value={editTier}
+                                        onChange={(e) => setEditTier(e.target.value as 'free' | 'premium')}
+                                        className="w-full p-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-indigo-500"
+                                    >
+                                        <option value="free">Free</option>
+                                        <option value="premium">Premium</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Credits</label>
+                                    <input
+                                        type="number"
+                                        value={editCredits}
+                                        onChange={(e) => setEditCredits(parseInt(e.target.value) || 0)}
+                                        className="w-full p-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-indigo-500"
+                                    />
+                                </div>
+
+                                <div className="flex gap-3 pt-4">
+                                    <button
+                                        onClick={confirmEdit}
+                                        disabled={actionLoading}
+                                        className="flex-1 py-3 bg-indigo-600 text-white font-black uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                    >
+                                        {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                        Save Changes
+                                    </button>
+                                    <button
+                                        onClick={() => setShowEditModal(false)}
+                                        disabled={actionLoading}
+                                        className="px-6 py-3 bg-white/5 text-slate-400 font-black uppercase tracking-widest rounded-xl hover:bg-white/10 transition-colors disabled:opacity-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete User Modal */}
+            {showDeleteModal && selectedUser && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="glass-card rounded-3xl p-1 border-red-500/20 max-w-md w-full">
+                        <div className="bg-slate-950 rounded-[1.4rem] p-8">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-2xl font-black uppercase text-red-400">Delete User</h3>
+                                <button
+                                    onClick={() => setShowDeleteModal(false)}
+                                    className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <div className="space-y-6">
+                                <p className="text-slate-300">
+                                    Are you sure you want to delete user <strong className="text-white">{selectedUser.email}</strong>?
+                                </p>
+                                <p className="text-sm text-slate-500">
+                                    This action cannot be undone. All user data will be permanently deleted.
+                                </p>
+
+                                <div className="flex gap-3 pt-4">
+                                    <button
+                                        onClick={confirmDelete}
+                                        disabled={actionLoading}
+                                        className="flex-1 py-3 bg-red-600 text-white font-black uppercase tracking-widest rounded-xl hover:bg-red-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                    >
+                                        {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                        Delete User
+                                    </button>
+                                    <button
+                                        onClick={() => setShowDeleteModal(false)}
+                                        disabled={actionLoading}
+                                        className="px-6 py-3 bg-white/5 text-slate-400 font-black uppercase tracking-widest rounded-xl hover:bg-white/10 transition-colors disabled:opacity-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
