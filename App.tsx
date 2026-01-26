@@ -9,8 +9,9 @@ import VideoCreator from './components/VideoCreator';
 import ExportPack from './components/ExportPack';
 import ProjectHistory from './components/ProjectHistory';
 import Auth from './components/Auth';
+import AdminDashboard from './components/AdminDashboard';
 import { supabase } from './services/supabaseClient';
-import { Sparkles, History, Layout, Activity, User, LogOut } from 'lucide-react';
+import { Sparkles, History, Layout, Activity, User, LogOut, Shield } from 'lucide-react';
 
 const App: React.FC = () => {
   const [step, setStep] = useState<AppStep>(AppStep.LANDING);
@@ -20,6 +21,7 @@ const App: React.FC = () => {
   const [script, setScript] = useState<VideoScript | null>(null);
   const [assets, setAssets] = useState<GeneratedAsset[]>([]);
   const [session, setSession] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -51,7 +53,18 @@ const App: React.FC = () => {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+    setIsAdmin(false);
     setStep(AppStep.LANDING);
+  };
+
+  const handleAuthComplete = (adminStatus?: boolean) => {
+    if (adminStatus) {
+      setIsAdmin(true);
+      setStep(7); // Admin dashboard step
+    } else {
+      setIsAdmin(false);
+      setStep(AppStep.INPUT);
+    }
   };
 
   const handleRedoVideo = () => {
@@ -85,6 +98,11 @@ const App: React.FC = () => {
           <div className="flex items-center gap-4">
             {session && (
               <>
+                {isAdmin && (
+                  <button onClick={() => setStep(7)} className="px-5 py-2.5 bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-600/30 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                    <Shield className="w-4 h-4" /> Admin
+                  </button>
+                )}
                 <button onClick={() => setStep(AppStep.SEO_GUIDES)} className="px-5 py-2.5 bg-white/5 border border-white/10 text-slate-400 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest hidden md:flex items-center gap-2">
                   <Layout className="w-4 h-4" /> Guides
                 </button>
@@ -103,7 +121,7 @@ const App: React.FC = () => {
       {/* Main Content */}
       <main className={`relative z-10 ${step === AppStep.LANDING || step === AppStep.SEO_GUIDES ? 'pt-0' : 'pt-32 pb-20'}`}>
         {!session && step !== AppStep.LANDING && step !== AppStep.SEO_GUIDES ? (
-          <Auth onAuthComplete={() => setStep(AppStep.INPUT)} />
+          <Auth onAuthComplete={handleAuthComplete} />
         ) : (
           <>
             {step === AppStep.LANDING && <LandingPage onStart={(mode) => { setSelectedMode(mode); setStep(AppStep.INPUT); }} onViewSEO={() => setStep(AppStep.SEO_GUIDES)} />}
@@ -117,6 +135,11 @@ const App: React.FC = () => {
             {step === AppStep.HISTORY && (
               <div className="animate-fade-in px-6">
                 <ProjectHistory onLoadProject={(p) => { setProductData(p.productData); setAdCopy(p.adCopy); setScript(p.script); setStep(AppStep.STRATEGY); }} onBack={() => setStep(AppStep.LANDING)} />
+              </div>
+            )}
+            {step === 7 && isAdmin && (
+              <div className="animate-fade-in">
+                <AdminDashboard onBack={() => setStep(AppStep.LANDING)} />
               </div>
             )}
           </>
