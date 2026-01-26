@@ -14,6 +14,7 @@ import { Sparkles, History, Layout, Activity, User, LogOut } from 'lucide-react'
 
 const App: React.FC = () => {
   const [step, setStep] = useState<AppStep>(AppStep.LANDING);
+  const [selectedMode, setSelectedMode] = useState<'link' | 'search' | 'manual'>('link');
   const [productData, setProductData] = useState<ProductData | null>(null);
   const [adCopy, setAdCopy] = useState<AdCopyPackage | null>(null);
   const [script, setScript] = useState<VideoScript | null>(null);
@@ -70,7 +71,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen text-white selection:bg-indigo-500 selection:text-white relative">
-      
+
       {/* Universal Header */}
       <header className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${step === AppStep.LANDING ? 'py-8' : 'py-4 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 shadow-2xl'}`}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
@@ -80,7 +81,7 @@ const App: React.FC = () => {
             </div>
             <h1 className="font-black text-2xl tracking-tighter uppercase italic">Viral<span className="text-indigo-400">Link</span></h1>
           </div>
-          
+
           <div className="flex items-center gap-4">
             {session && (
               <>
@@ -102,12 +103,12 @@ const App: React.FC = () => {
       {/* Main Content */}
       <main className={`relative z-10 ${step === AppStep.LANDING || step === AppStep.SEO_GUIDES ? 'pt-0' : 'pt-32 pb-20'}`}>
         {!session && step !== AppStep.LANDING && step !== AppStep.SEO_GUIDES ? (
-           <Auth onAuthComplete={() => setStep(AppStep.INPUT)} />
+          <Auth onAuthComplete={() => setStep(AppStep.INPUT)} />
         ) : (
           <>
-            {step === AppStep.LANDING && <LandingPage onStart={() => setStep(AppStep.INPUT)} onViewSEO={() => setStep(AppStep.SEO_GUIDES)} />}
+            {step === AppStep.LANDING && <LandingPage onStart={(mode) => { setSelectedMode(mode); setStep(AppStep.INPUT); }} onViewSEO={() => setStep(AppStep.SEO_GUIDES)} />}
             {step === AppStep.SEO_GUIDES && <div className="pt-32"><SEOContent onBack={() => setStep(AppStep.LANDING)} /></div>}
-            {step === AppStep.INPUT && <div className="animate-fade-in px-6"><LinkAnalyzer onComplete={handleProductExtracted} /></div>}
+            {step === AppStep.INPUT && <div className="animate-fade-in px-6"><LinkAnalyzer initialMode={selectedMode} onComplete={handleProductExtracted} /></div>}
             {step === AppStep.STRATEGY && productData && <div className="animate-fade-in px-6"><StrategyBoard productData={productData} onNext={handleStrategyComplete} /></div>}
             {step === AppStep.VIDEO && script && productData && <div className="animate-fade-in px-6"><VideoCreator script={script} productData={productData} onComplete={handleVideoComplete} /></div>}
             {step === AppStep.EXPORT && productData && adCopy && script && assets.length > 0 && (
@@ -124,8 +125,8 @@ const App: React.FC = () => {
 
       <footer className="relative z-10 border-t border-white/5 py-20 px-6 mt-20 bg-slate-950/50 backdrop-blur-3xl">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 text-[10px] font-mono text-slate-700">
-           <span>SUPABASE CLOUD • GEMINI 3 PRO • VEO 3.1</span>
-           <span>© 2026 VIRALLINK AI. ALL RIGHTS RESERVED.</span>
+          <span>SUPABASE CLOUD • GEMINI 3 PRO • VEO 3.1</span>
+          <span>© 2026 VIRALLINK AI. ALL RIGHTS RESERVED.</span>
         </div>
       </footer>
     </div>

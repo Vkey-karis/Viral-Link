@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 
 interface Props {
+  initialMode?: 'link' | 'search' | 'manual';
   onComplete: (data: ProductData) => void;
 }
 
@@ -75,8 +76,8 @@ const ProductImageUploader: React.FC<UploaderProps> = ({ imageData, onUpload, on
   );
 };
 
-const LinkAnalyzer: React.FC<Props> = ({ onComplete }) => {
-  const [mode, setMode] = useState<'link' | 'search' | 'manual'>('link');
+const LinkAnalyzer: React.FC<Props> = ({ initialMode, onComplete }) => {
+  const [mode, setMode] = useState<'link' | 'search' | 'manual'>(initialMode || 'link');
   const [url, setUrl] = useState('');
   const [keyword, setKeyword] = useState('');
   const [trendingProducts, setTrendingProducts] = useState<TrendingProduct[]>([]);
