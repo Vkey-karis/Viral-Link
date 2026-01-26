@@ -33,7 +33,6 @@ SELECT
   p.subscription_tier,
   p.credits,
   p.is_admin,
-  p.created_at as profile_created_at,
   (SELECT COUNT(*) FROM usage_logs WHERE user_id = u.id) as total_videos_generated,
   (SELECT SUM(amount) FROM earnings WHERE user_id = u.id) as total_spent
 FROM auth.users u

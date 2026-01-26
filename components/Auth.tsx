@@ -29,7 +29,15 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
         // Check if this is an admin login
         const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
         const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
+
+        console.log('Admin Detection Debug:');
+        console.log('Entered Email:', email);
+        console.log('Admin Email from env:', adminEmail);
+        console.log('Passwords match:', password === adminPassword);
+        console.log('Emails match:', email === adminEmail);
+
         const isAdminUser = email === adminEmail && password === adminPassword;
+        console.log('Is Admin User:', isAdminUser);
 
         onAuthComplete(isAdminUser);
       } else {

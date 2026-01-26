@@ -21,7 +21,6 @@ export interface UserWithProfile {
     subscription_tier: 'free' | 'premium';
     credits: number;
     is_admin: boolean;
-    profile_created_at: string;
     total_videos_generated: number;
     total_spent: number;
 }
