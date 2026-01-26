@@ -448,7 +448,7 @@ export const generateSpeech = async (text: string, voiceName: string = 'Puck'): 
     const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
     if (!base64Audio) {
       console.error("Gemini Audio Response Missing Data:", JSON.stringify(response, null, 2));
-      throw new Error("Audio generation failed - no audio data returned. Check console for details.");
+      throw new Error("[V2] Audio generation failed - no audio data returned. Check console for details.");
     }
 
     const binaryString = window.atob(base64Audio);
