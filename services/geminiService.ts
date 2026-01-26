@@ -164,14 +164,35 @@ export const findTrendingProducts = async (keyword: string): Promise<TrendingPro
   const ai = getClient();
   await sleep(500);
 
+  const productsSchema = {
+    type: Type.ARRAY,
+    items: {
+      type: Type.OBJECT,
+      properties: {
+        title: { type: Type.STRING },
+        price: { type: Type.STRING },
+        store: { type: Type.STRING },
+        reason: { type: Type.STRING },
+        url: { type: Type.STRING }
+      },
+      required: ["title", "price", "store", "reason", "url"]
+    }
+  };
+
   const prompt = `
     Act as a Global Market Intelligence Engine. 
     Find 12 products related to "${keyword}" that satisfy these criteria:
     1. HIGH SEARCH VOLUME: Must be currently viral, trending, or have massive search intent.
     2. 40+ MARKETPLACE REACH: Search across Jumia, Selar, Amazon, Gumroad, Walmart, Shopee, Lazada, ClickBank, etc.
     
-    RETURN ONLY A STRICTLY VALID JSON ARRAY.
-    Keys: "title", "price", "store", "reason", "url".
+    For each product, provide:
+    - title: Product name
+    - price: Price with currency (e.g., "$29.99" or "₦15,000")
+    - store: Marketplace name
+    - reason: Why it's trending (1 sentence)
+    - url: Direct product URL
+    
+    Return ONLY valid JSON conforming to the schema.
   `;
 
   return callWithRetry(async () => {
@@ -179,11 +200,15 @@ export const findTrendingProducts = async (keyword: string): Promise<TrendingPro
       model: "gemini-2.0-flash-exp",
       contents: prompt,
       config: {
+        responseMimeType: "application/json",
+        responseSchema: productsSchema,
         tools: [{ googleSearch: {} }],
       }
     });
-    return cleanAndParseJson<TrendingProduct[]>(response.text || "[]");
-  }, 3, 4000); // Increased initial delay to 4s to handle 429s
+
+    const data = JSON.parse(response.text || "[]");
+    return Array.isArray(data) ? data : [];
+  }, 3, 4000);
 };
 
 // --- Feature 1: Extraction ---
