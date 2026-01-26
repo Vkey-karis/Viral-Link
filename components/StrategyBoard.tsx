@@ -38,6 +38,9 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
   const [duration, setDuration] = useState<'15s' | '30s' | '40s'>('30s');
   const [selectedVoice, setSelectedVoice] = useState<string>('Puck');
   const [selectedTemplate, setSelectedTemplate] = useState<VideoTemplate>('WAKE_UP_CALL');
+  const [selectedHookIndex, setSelectedHookIndex] = useState<number>(0);
+  const [copiedScript, setCopiedScript] = useState(false);
+  const [copiedHook, setCopiedHook] = useState<number | null>(null);
 
   const [loadingCopy, setLoadingCopy] = useState(true);
   const [loadingScript, setLoadingScript] = useState(true);
@@ -91,6 +94,36 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
         duration: duration
       };
       onNext(finalScript, adCopy);
+    }
+  };
+
+  const copyScriptToClipboard = async () => {
+    if (!script) return;
+
+    const scriptText = script.scenes.map((scene, idx) =>
+      `Scene ${idx + 1}:\n` +
+      `Visual: ${scene.visual}\n` +
+      `Audio: ${scene.audio}\n` +
+      `Overlay: ${scene.overlayText}\n` +
+      `Transition: ${scene.transition}\n`
+    ).join('\n');
+
+    try {
+      await navigator.clipboard.writeText(scriptText);
+      setCopiedScript(true);
+      setTimeout(() => setCopiedScript(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy script:', err);
+    }
+  };
+
+  const copyHookToClipboard = async (hook: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(hook);
+      setCopiedHook(index);
+      setTimeout(() => setCopiedHook(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy hook:', err);
     }
   };
 
@@ -210,9 +243,47 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
                 </div>
                 <div className="space-y-3">
                   {(adCopy?.hooks || []).map((hook, i) => (
-                    <div key={i} className="group relative p-4 bg-slate-900/60 rounded-xl border border-white/5 hover:border-indigo-500/30 transition-all">
-                      <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                      <p className="text-sm text-slate-200 font-bold leading-relaxed">"{hook}"</p>
+                    <div
+                      key={i}
+                      onClick={() => setSelectedHookIndex(i)}
+                      className={`group relative p-4 rounded-xl border transition-all cursor-pointer ${selectedHookIndex === i
+                          ? 'bg-indigo-600/20 border-indigo-500 shadow-[0_0_20px_rgba(79,70,229,0.15)]'
+                          : 'bg-slate-900/60 border-white/5 hover:border-indigo-500/30'
+                        }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3 flex-1">
+                          <div className={`mt-1 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all ${selectedHookIndex === i
+                              ? 'border-indigo-500 bg-indigo-500'
+                              : 'border-slate-600 group-hover:border-indigo-500/50'
+                            }`}>
+                            {selectedHookIndex === i && (
+                              <div className="w-2 h-2 bg-white rounded-full"></div>
+                            )}
+                          </div>
+                          <p className={`text-sm font-bold leading-relaxed flex-1 ${selectedHookIndex === i ? 'text-white' : 'text-slate-200'
+                            }`}>"{hook}"</p>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            copyHookToClipboard(hook, i);
+                          }}
+                          className={`p-2 rounded-lg transition-all ${copiedHook === i
+                              ? 'bg-green-500/20 text-green-400'
+                              : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                            }`}
+                          title="Copy hook"
+                        >
+                          {copiedHook === i ? (
+                            <CheckCircle2 className="w-4 h-4" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
+                      <span className={`absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full transition-opacity ${selectedHookIndex === i ? 'bg-indigo-500 opacity-100' : 'bg-indigo-500 opacity-0 group-hover:opacity-100'
+                        }`}></span>
                     </div>
                   ))}
                 </div>
@@ -305,7 +376,24 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
                   <Zap className="w-3.5 h-3.5 text-indigo-400" />
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Master Script</span>
                 </div>
-                <span className="text-[9px] font-black text-indigo-400 bg-indigo-400/10 px-2 py-0.5 rounded border border-indigo-500/20 uppercase tracking-widest">{duration} Render</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-[9px] font-black text-indigo-400 bg-indigo-400/10 px-2 py-0.5 rounded border border-indigo-500/20 uppercase tracking-widest">{duration} Render</span>
+                  <button
+                    onClick={copyScriptToClipboard}
+                    disabled={loadingScript || !script}
+                    className={`p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${copiedScript
+                        ? 'bg-green-500/20 text-green-400'
+                        : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                      }`}
+                    title="Copy entire script"
+                  >
+                    {copiedScript ? (
+                      <CheckCircle2 className="w-4 h-4" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               {loadingScript ? (
