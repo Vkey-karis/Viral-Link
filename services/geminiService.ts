@@ -190,39 +190,26 @@ export const findTrendingProducts = async (keyword: string): Promise<TrendingPro
 export const extractProductInfo = async (url: string, language: string = 'English'): Promise<ProductData> => {
   const ai = getClient();
 
-  const productSchema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      price: { type: Type.STRING },
-      description: { type: Type.STRING },
-      features: { type: Type.ARRAY, items: { type: Type.STRING } },
-      painPoints: { type: Type.ARRAY, items: { type: Type.STRING } },
-      benefits: { type: Type.ARRAY, items: { type: Type.STRING } },
-      reviewsSummary: { type: Type.STRING },
-      marketplace: { type: Type.STRING },
-    }
-  };
-
   const prompt = `
     Deep scan this product URL: ${url}
     
     TASK: Extract all marketing intelligence.
     
     STRICT REQUIREMENTS:
-    1.  **ACCURACY**: Extract actual data from the page. If the URL is not accessible, infer from the URL structure and common knowledge about such products.
+    1.  **ACCURACY**: Extract actual data from the page. If the URL is not accessible via Google Search, infer from the URL structure and common knowledge about such products.
     2.  **LANGUAGE**: Translate ALL output to ${language}.
     3.  **LISTS**: Ensure 'features', 'painPoints', and 'benefits' have at least 3-5 items each.
+    4.  **FORMAT**: Return ONLY a valid JSON object. Do not include markdown formatting like \`\`\`json.
     
-    Identify:
-    - Title
-    - Price (with currency)
-    - Detailed Description
-    - Top 5 Specific Features
-    - Core Pain Points the product solves
-    - Key Benefits
-    - Summary of user reviews if available.
-    - Marketplace Name (e.g. Amazon, Jumia)
+    Keys to Identify:
+    - title
+    - price (with currency)
+    - description (detailed)
+    - features (array of strings)
+    - painPoints (array of strings)
+    - benefits (array of strings)
+    - reviewsSummary
+    - marketplace (e.g. Amazon, Jumia)
   `;
 
   return callWithRetry(async () => {
@@ -232,11 +219,10 @@ export const extractProductInfo = async (url: string, language: string = 'Englis
       config: {
         tools: [{ googleSearch: {} }],
         responseMimeType: "application/json",
-        responseSchema: productSchema
       }
     });
 
-    const data = JSON.parse(response.text || "{}");
+    const data = cleanAndParseJson<any>(response.text || "{}");
 
     return {
       title: data.title || 'Product Analysis',
