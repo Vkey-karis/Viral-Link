@@ -433,20 +433,23 @@ export const generateSpeech = async (text: string, voiceName: string = 'Puck'): 
   const ai = getClient();
 
   try {
-    // Using gemini-2.0-flash for Audio capability
-    console.log("Generating speech with model: gemini-2.0-flash");
+    // Using gemini-2.5-flash-preview-tts for Audio capability
+    console.log("Generating speech with model: gemini-2.5-flash-preview-tts");
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash-preview-tts",
       contents: [{ parts: [{ text }] }],
       config: {
-        // responseModalities: [Modality.AUDIO], // Removed to fix 400 error
+        responseModalities: [Modality.AUDIO],
         speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } },
       },
     });
     console.log("Speech generation response received.");
 
     const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    if (!base64Audio) throw new Error("Audio generation failed - no audio data returned.");
+    if (!base64Audio) {
+      console.error("Gemini Audio Response Missing Data:", JSON.stringify(response, null, 2));
+      throw new Error("Audio generation failed - no audio data returned. Check console for details.");
+    }
 
     const binaryString = window.atob(base64Audio);
     const bytes = new Uint8Array(binaryString.length);
