@@ -26,6 +26,7 @@ import {
 interface Props {
   initialMode?: 'link' | 'search' | 'manual';
   onComplete: (data: ProductData) => void;
+  onBack: () => void;
 }
 
 interface UploaderProps {
@@ -76,7 +77,7 @@ const ProductImageUploader: React.FC<UploaderProps> = ({ imageData, onUpload, on
   );
 };
 
-const LinkAnalyzer: React.FC<Props> = ({ initialMode, onComplete }) => {
+const LinkAnalyzer: React.FC<Props> = ({ initialMode, onComplete, onBack }) => {
   const [mode, setMode] = useState<'link' | 'search' | 'manual'>(initialMode || 'link');
   const [url, setUrl] = useState('');
   const [keyword, setKeyword] = useState('');
@@ -169,6 +170,15 @@ const LinkAnalyzer: React.FC<Props> = ({ initialMode, onComplete }) => {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-16 animate-fade-in pb-20 px-4">
+      {/* Back Button */}
+      <button
+        onClick={onBack}
+        className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
+      >
+        <ChevronDown className="w-5 h-5 rotate-90 group-hover:-translate-x-1 transition-transform" />
+        <span className="text-sm font-black uppercase tracking-widest">Back to Home</span>
+      </button>
+
       <div className="text-center space-y-6">
         <div className="inline-flex items-center justify-center p-6 glass-card border-white/10 rounded-3xl relative overflow-hidden group">
           <ShoppingBag className="w-12 h-12 text-indigo-400 relative z-10" />

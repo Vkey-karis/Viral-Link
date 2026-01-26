@@ -108,9 +108,9 @@ const App: React.FC = () => {
           <>
             {step === AppStep.LANDING && <LandingPage onStart={(mode) => { setSelectedMode(mode); setStep(AppStep.INPUT); }} onViewSEO={() => setStep(AppStep.SEO_GUIDES)} />}
             {step === AppStep.SEO_GUIDES && <div className="pt-32"><SEOContent onBack={() => setStep(AppStep.LANDING)} /></div>}
-            {step === AppStep.INPUT && <div className="animate-fade-in px-6"><LinkAnalyzer initialMode={selectedMode} onComplete={handleProductExtracted} /></div>}
-            {step === AppStep.STRATEGY && productData && <div className="animate-fade-in px-6"><StrategyBoard productData={productData} onNext={handleStrategyComplete} /></div>}
-            {step === AppStep.VIDEO && script && productData && <div className="animate-fade-in px-6"><VideoCreator script={script} productData={productData} onComplete={handleVideoComplete} /></div>}
+            {step === AppStep.INPUT && <div className="animate-fade-in px-6"><LinkAnalyzer initialMode={selectedMode} onComplete={handleProductExtracted} onBack={() => setStep(AppStep.LANDING)} /></div>}
+            {step === AppStep.STRATEGY && productData && <div className="animate-fade-in px-6"><StrategyBoard productData={productData} onNext={handleStrategyComplete} onBack={() => setStep(AppStep.INPUT)} /></div>}
+            {step === AppStep.VIDEO && script && productData && <div className="animate-fade-in px-6"><VideoCreator script={script} productData={productData} onComplete={handleVideoComplete} onBack={() => setStep(AppStep.STRATEGY)} /></div>}
             {step === AppStep.EXPORT && productData && adCopy && script && assets.length > 0 && (
               <div className="animate-fade-in px-6"><ExportPack product={productData} copy={adCopy} script={script} assets={assets} onReset={handleReset} onRedo={handleRedoVideo} /></div>
             )}

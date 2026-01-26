@@ -29,9 +29,10 @@ import {
 interface Props {
   productData: ProductData;
   onNext: (script: VideoScript, copy: AdCopyPackage) => void;
+  onBack: () => void;
 }
 
-const StrategyBoard: React.FC<Props> = ({ productData, onNext }) => {
+const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
   const [adCopy, setAdCopy] = useState<AdCopyPackage | null>(null);
   const [script, setScript] = useState<VideoScript | null>(null);
   const [duration, setDuration] = useState<'15s' | '30s' | '40s'>('30s');
@@ -150,6 +151,14 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext }) => {
 
   return (
     <div key="content" className="w-full max-w-7xl mx-auto space-y-12 pb-20 px-4">
+      {/* Back Button */}
+      <button
+        onClick={onBack}
+        className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
+      >
+        <ChevronRightCircle className="w-5 h-5 rotate-180 group-hover:-translate-x-1 transition-transform" />
+        <span className="text-sm font-black uppercase tracking-widest">Back to Extraction</span>
+      </button>
 
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
