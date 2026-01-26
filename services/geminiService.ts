@@ -217,8 +217,7 @@ export const extractProductInfo = async (url: string, language: string = 'Englis
       model: "gemini-2.0-flash-exp",
       contents: prompt,
       config: {
-        tools: [{ googleSearch: {} }],
-        responseMimeType: "application/json",
+        // Removed googleSearch tool to avoid conflict with JSON parsing
       }
     });
 
