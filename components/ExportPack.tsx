@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { AdCopyPackage, ProductData, VideoScript, GeneratedAsset } from '../types';
 import { saveProject } from '../services/storageService';
-import { Download, CheckCircle, Youtube, Instagram, Facebook, ArrowLeft, Link as LinkIcon, Copy, RefreshCw, Play, Pause, Linkedin, Twitter, Share2, Loader2, Smartphone, Save, SmartphoneIcon, ExternalLink, Hash, Activity, Send, ClipboardCheck } from 'lucide-react';
+import { Download, CheckCircle, Youtube, Instagram, Facebook, ArrowLeft, Link as LinkIcon, Copy, RefreshCw, Play, Pause, Linkedin, Twitter, Share2, Loader2, Smartphone, Save, SmartphoneIcon, ExternalLink, Hash, Activity, Send, ClipboardCheck, ChevronRight } from 'lucide-react';
 
 interface Props {
   product: ProductData;
@@ -17,10 +17,11 @@ const ExportPack: React.FC<Props> = ({ product, copy, script, assets, onReset, o
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
   const [socialStatus, setSocialStatus] = useState<string | null>(null);
   const [isSaved, setIsSaved] = useState(false);
-  
+
   const [currentAssetIndex, setCurrentAssetIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  
+  const [isContinuousPlay, setIsContinuousPlay] = useState(false);
+
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
 
@@ -33,35 +34,62 @@ const ExportPack: React.FC<Props> = ({ product, copy, script, assets, onReset, o
     const audio = audioRef.current;
     if (!audio) return;
     const handleAudioEnded = () => {
-      if (currentAssetIndex < assets.length - 1) setCurrentAssetIndex(prev => prev + 1);
-      else { setIsPlaying(false); setCurrentAssetIndex(0); }
+      if (isContinuousPlay && currentAssetIndex < assets.length - 1) {
+        setCurrentAssetIndex(prev => prev + 1);
+      } else if (isContinuousPlay) {
+        setIsPlaying(false);
+        setIsContinuousPlay(false);
+        setCurrentAssetIndex(0);
+      } else {
+        setIsPlaying(false);
+      }
     };
     audio.addEventListener('ended', handleAudioEnded);
     return () => audio.removeEventListener('ended', handleAudioEnded);
-  }, [currentAssetIndex, assets.length]);
+  }, [currentAssetIndex, assets.length, isContinuousPlay]);
 
   useEffect(() => {
     const video = videoRef.current;
     const audio = audioRef.current;
     if (video && audio) {
-       const asset = assets[currentAssetIndex];
-       if (asset) {
-           if (video.src !== asset.videoUrl && asset.videoUrl) { video.src = asset.videoUrl; video.loop = true; }
-           if (audio.src !== asset.audioUrl && asset.audioUrl) { audio.src = asset.audioUrl; }
-           if (isPlaying) { video.play().catch(() => {}); audio.play().catch(() => {}); }
-           else { video.pause(); audio.pause(); }
-       }
+      const asset = assets[currentAssetIndex];
+      if (asset) {
+        if (video.src !== asset.videoUrl && asset.videoUrl) { video.src = asset.videoUrl; video.loop = true; }
+        if (audio.src !== asset.audioUrl && asset.audioUrl) { audio.src = asset.audioUrl; }
+        if (isPlaying) { video.play().catch(() => { }); audio.play().catch(() => { }); }
+        else { video.pause(); audio.pause(); }
+      }
     }
   }, [currentAssetIndex, isPlaying, assets]);
 
   const togglePlay = () => setIsPlaying(!isPlaying);
+
+  const playAll = () => {
+    setCurrentAssetIndex(0);
+    setIsContinuousPlay(true);
+    setIsPlaying(true);
+  };
+
+  const nextScene = () => {
+    if (currentAssetIndex < assets.length - 1) {
+      setCurrentAssetIndex(prev => prev + 1);
+      setIsPlaying(false);
+    }
+  };
+
+  const prevScene = () => {
+    if (currentAssetIndex > 0) {
+      setCurrentAssetIndex(prev => prev - 1);
+      setIsPlaying(false);
+    }
+  };
 
   const copyToClipboard = (text: string, section: string) => {
     navigator.clipboard.writeText(text);
     setCopiedSection(section);
     setTimeout(() => setCopiedSection(null), 2000);
   };
-  
+
   const handleSaveProject = () => {
     try {
       saveProject(product, copy, script);
@@ -116,9 +144,12 @@ const ExportPack: React.FC<Props> = ({ product, copy, script, assets, onReset, o
       const audioCtx = new AudioContext();
       const destNode = audioCtx.createMediaStreamDestination();
       const canvasStream = canvas.captureStream(30);
-      
-      if (destNode.stream.getAudioTracks().length > 0) canvasStream.addTrack(destNode.stream.getAudioTracks()[0]);
-      
+
+      // Add audio track to canvas stream
+      if (destNode.stream.getAudioTracks().length > 0) {
+        canvasStream.addTrack(destNode.stream.getAudioTracks()[0]);
+      }
+
       const recorder = new MediaRecorder(canvasStream, { mimeType, videoBitsPerSecond: 3000000 });
       const chunks: Blob[] = [];
       recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
@@ -130,56 +161,107 @@ const ExportPack: React.FC<Props> = ({ product, copy, script, assets, onReset, o
         setRenderProgress(Math.round(((i) / assets.length) * 100));
         const asset = assets[i];
         const sceneScript = script.scenes[i];
-        
-        const audioEl = new Audio(asset.audioUrl || "");
+
+        // Load audio with proper error handling
+        const audioEl = new Audio();
         audioEl.crossOrigin = "anonymous";
-        await new Promise((res) => { audioEl.oncanplaythrough = res; audioEl.onerror = () => res(null); audioEl.load(); });
-        
+
+        // Validate audio URL before loading
+        if (asset.audioUrl && asset.audioUrl.startsWith('blob:')) {
+          audioEl.src = asset.audioUrl;
+        } else {
+          console.warn(`Invalid audio URL for scene ${i}:`, asset.audioUrl);
+        }
+
+        await new Promise((res) => {
+          audioEl.oncanplaythrough = res;
+          audioEl.onerror = (e) => {
+            console.error(`Audio load error for scene ${i}:`, e);
+            res(null);
+          };
+          if (audioEl.src) audioEl.load();
+          else res(null);
+        });
+
+        // Load video with proper error handling
         const videoEl = document.createElement('video');
-        videoEl.src = asset.videoUrl || ""; videoEl.crossOrigin = "anonymous"; videoEl.muted = true; videoEl.loop = true; videoEl.playsInline = true;
-        await new Promise((res) => { videoEl.onloadeddata = res; videoEl.onerror = res; videoEl.load(); });
-        
-        const sourceNode = audioCtx.createMediaElementSource(audioEl);
-        sourceNode.connect(destNode);
-        
-        await videoEl.play(); await audioEl.play();
+        videoEl.crossOrigin = "anonymous";
+        videoEl.muted = true;
+        videoEl.loop = true;
+        videoEl.playsInline = true;
+
+        // Validate video URL before loading
+        if (asset.videoUrl && asset.videoUrl.startsWith('blob:')) {
+          videoEl.src = asset.videoUrl;
+        } else {
+          console.warn(`Invalid video URL for scene ${i}:`, asset.videoUrl);
+        }
+
+        await new Promise((res) => {
+          videoEl.onloadeddata = res;
+          videoEl.onerror = (e) => {
+            console.error(`Video load error for scene ${i}:`, e);
+            res(null);
+          };
+          if (videoEl.src) videoEl.load();
+          else res(null);
+        });
+
+        // Only create audio source if audio loaded successfully
+        let sourceNode = null;
+        if (audioEl.src && audioEl.readyState >= 2) {
+          try {
+            sourceNode = audioCtx.createMediaElementSource(audioEl);
+            sourceNode.connect(destNode);
+          } catch (e) {
+            console.warn(`Could not create audio source for scene ${i}:`, e);
+          }
+        }
+
+        // Play video and audio if available
+        await videoEl.play().catch(e => console.warn('Video play error:', e));
+        if (audioEl.src) await audioEl.play().catch(e => console.warn('Audio play error:', e));
         const duration = (audioEl.duration && isFinite(audioEl.duration)) ? audioEl.duration * 1000 : 5000;
         const startTime = Date.now();
-        
+
         await new Promise<void>((resolve) => {
-            const draw = () => {
-                const elapsed = Date.now() - startTime;
-                ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-                if (sceneScript.overlayText) {
-                    ctx.save(); ctx.font = 'bold 58px "Inter", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    const x = canvas.width / 2; const y = canvas.height * 0.85;
-                    ctx.lineWidth = 10; ctx.strokeStyle = 'black'; ctx.lineJoin = 'round'; ctx.strokeText(sceneScript.overlayText, x, y);
-                    ctx.fillStyle = 'white'; ctx.fillText(sceneScript.overlayText, x, y); ctx.restore();
-                }
-                if (elapsed < duration) requestAnimationFrame(draw); else resolve();
-            };
-            draw();
+          const draw = () => {
+            const elapsed = Date.now() - startTime;
+            ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+            if (sceneScript.overlayText) {
+              ctx.save(); ctx.font = 'bold 58px "Inter", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+              const x = canvas.width / 2; const y = canvas.height * 0.85;
+              ctx.lineWidth = 10; ctx.strokeStyle = 'black'; ctx.lineJoin = 'round'; ctx.strokeText(sceneScript.overlayText, x, y);
+              ctx.fillStyle = 'white'; ctx.fillText(sceneScript.overlayText, x, y); ctx.restore();
+            }
+            if (elapsed < duration) requestAnimationFrame(draw); else resolve();
+          };
+          draw();
         });
-        
-        videoEl.pause(); audioEl.pause(); sourceNode.disconnect(); videoEl.remove(); audioEl.remove();
+
+        videoEl.pause();
+        if (audioEl.src) audioEl.pause();
+        if (sourceNode) sourceNode.disconnect();
+        videoEl.remove();
+        audioEl.remove();
       }
-      
+
       recorder.stop();
       await new Promise(r => recorder.onstop = r);
-      
+
       const extension = mimeType.includes('mp4') ? 'mp4' : 'webm';
       const blob = new Blob(chunks, { type: mimeType });
       const file = new File([blob], `ViralLink_${product.title.slice(0, 10).trim()}.${extension}`, { type: mimeType });
-      
+
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: 'ViralLink Output', text: fullCaption });
+        await navigator.share({ files: [file], title: 'ViralLink Output', text: fullCaption });
       } else {
-          const url = URL.createObjectURL(file); const a = document.createElement('a'); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        const url = URL.createObjectURL(file); const a = document.createElement('a'); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
       }
       setRenderProgress(100);
-    } catch (e: any) { 
+    } catch (e: any) {
       console.error(e);
-      alert(`Export failed: ${e.message}. You can still download individual scene assets below.`); 
+      alert(`Export failed: ${e.message}. You can still download individual scene assets below.`);
     } finally { setIsRendering(false); }
   };
 
@@ -198,101 +280,127 @@ const ExportPack: React.FC<Props> = ({ product, copy, script, assets, onReset, o
     <div className="w-full max-w-7xl mx-auto pb-32 animate-fade-in px-4">
       <div className="text-center space-y-8 mb-16">
         <div className="inline-flex items-center justify-center p-6 glass-card border-white/10 rounded-3xl relative overflow-hidden group">
-           <Activity className="w-12 h-12 text-emerald-400 relative z-10" />
-           <div className="absolute inset-0 bg-emerald-500/5 blur-2xl animate-pulse"></div>
+          <Activity className="w-12 h-12 text-emerald-400 relative z-10" />
+          <div className="absolute inset-0 bg-emerald-500/5 blur-2xl animate-pulse"></div>
         </div>
         <div className="space-y-4">
-           <h2 className="text-5xl md:text-8xl font-black text-white italic tracking-tighter uppercase leading-[0.85]">
-             CONTENT <span className="text-emerald-500">READY</span>
-           </h2>
-           <p className="text-slate-500 text-lg font-medium max-w-xl mx-auto">Your viral assets are synthesized. Time to share your story with the world.</p>
+          <h2 className="text-5xl md:text-8xl font-black text-white italic tracking-tighter uppercase leading-[0.85]">
+            CONTENT <span className="text-emerald-500">READY</span>
+          </h2>
+          <p className="text-slate-500 text-lg font-medium max-w-xl mx-auto">Your viral assets are synthesized. Time to share your story with the world.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
         <div className="space-y-10">
-           <div className="relative glass-card rounded-[3.5rem] p-1 border-white/5 overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.5)]">
-              <div className="relative aspect-[9/16] bg-slate-950 rounded-[3.4rem] overflow-hidden group">
-                 {currentSceneScript?.overlayText && (
-                   <div className="absolute bottom-[18%] left-0 right-0 text-center z-30 pointer-events-none px-10">
-                     <h2 className="text-3xl font-black text-white italic tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,1)] uppercase" 
-                         style={{ WebkitTextStroke: '2px black' }}>
-                       {currentSceneScript.overlayText}
-                     </h2>
-                   </div>
-                 )}
+          <div className="relative glass-card rounded-[3.5rem] p-1 border-white/5 overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.5)]">
+            <div className="relative aspect-[9/16] bg-slate-950 rounded-[3.4rem] overflow-hidden group">
+              {currentSceneScript?.overlayText && (
+                <div className="absolute bottom-[18%] left-0 right-0 text-center z-30 pointer-events-none px-10">
+                  <h2 className="text-3xl font-black text-white italic tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,1)] uppercase"
+                    style={{ WebkitTextStroke: '2px black' }}>
+                    {currentSceneScript.overlayText}
+                  </h2>
+                </div>
+              )}
 
-                 <video 
-                   ref={videoRef}
-                   className="w-full h-full object-cover"
-                   playsInline
-                   muted
-                 />
-                 <audio ref={audioRef} />
+              <video
+                ref={videoRef}
+                className="w-full h-full object-cover"
+                playsInline
+                muted
+              />
+              <audio ref={audioRef} />
 
-                 <div 
-                   className="absolute inset-0 z-20 flex items-center justify-center bg-black/0 hover:bg-black/20 transition-all cursor-pointer group"
-                   onClick={togglePlay}
-                 >
-                   {!isPlaying && (
-                     <div className="w-24 h-24 bg-white/10 backdrop-blur-2xl rounded-full flex items-center justify-center transform scale-90 group-hover:scale-100 transition-all shadow-2xl border border-white/20">
-                       <Play className="w-10 h-10 text-white fill-current ml-2" />
-                     </div>
-                   )}
-                 </div>
-
-                 <div className="absolute top-10 left-0 right-0 flex justify-center gap-2 z-40 px-10">
-                   {assets.map((_, idx) => (
-                     <div 
-                       key={idx} 
-                       className={`h-1 rounded-full transition-all duration-500 ${idx === currentAssetIndex ? 'w-12 bg-white shadow-[0_0_10px_white]' : 'w-4 bg-white/20'}`} 
-                     />
-                   ))}
-                 </div>
-
-                 <div className="absolute bottom-8 left-0 right-0 text-center z-40">
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">AI Synthesis Engine • 9:16 Vertical</span>
-                 </div>
-              </div>
-           </div>
-
-           <div className="max-w-md mx-auto space-y-4">
-              <button 
-                onClick={renderFullVideo}
-                disabled={isRendering}
-                className="w-full py-7 bg-white text-black font-black uppercase tracking-[0.4em] rounded-[2rem] shadow-2xl transition-all hover:scale-[1.03] flex items-center justify-center gap-4 disabled:opacity-50"
+              <div
+                className="absolute inset-0 z-20 flex items-center justify-center bg-black/0 hover:bg-black/20 transition-all cursor-pointer group"
+                onClick={togglePlay}
               >
-                {isRendering ? (
-                  <><Loader2 className="w-6 h-6 animate-spin" /> Finalizing ({renderProgress}%)</>
-                ) : (
-                  <><Smartphone className="w-6 h-6" /> Export to Mobile</>
+                {!isPlaying && (
+                  <div className="w-24 h-24 bg-white/10 backdrop-blur-2xl rounded-full flex items-center justify-center transform scale-90 group-hover:scale-100 transition-all shadow-2xl border border-white/20">
+                    <Play className="w-10 h-10 text-white fill-current ml-2" />
+                  </div>
                 )}
-              </button>
-              
-              <div className="grid grid-cols-2 gap-4">
-                 <button 
-                    onClick={() => copyToClipboard(fullCaption, 'all')}
-                    className="py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl flex items-center justify-center gap-3 transition-all"
-                  >
-                    {copiedSection === 'all' ? <ClipboardCheck className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                    {copiedSection === 'all' ? 'Copied Caption' : 'Copy Caption'}
-                  </button>
-                  <button 
-                    onClick={handleSaveProject}
-                    disabled={isSaved}
-                    className="py-5 bg-white/5 border border-white/5 hover:bg-emerald-500/20 text-emerald-500 font-black uppercase tracking-widest text-[10px] rounded-2xl flex items-center justify-center gap-3 transition-all disabled:opacity-50"
-                  >
-                    <Save className="w-4 h-4" /> {isSaved ? "Saved" : "Save Project"}
-                  </button>
               </div>
-           </div>
+
+              <div className="absolute top-10 left-0 right-0 flex justify-center gap-2 z-40 px-10">
+                {assets.map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={`h-1 rounded-full transition-all duration-500 ${idx === currentAssetIndex ? 'w-12 bg-white shadow-[0_0_10px_white]' : 'w-4 bg-white/20'}`}
+                  />
+                ))}
+              </div>
+
+              <div className="absolute bottom-8 left-0 right-0 text-center z-40">
+                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">AI Synthesis Engine • 9:16 Vertical</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-4">
+            <button
+              onClick={prevScene}
+              disabled={currentAssetIndex === 0}
+              className="px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-black uppercase text-xs tracking-widest hover:bg-white/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              <ChevronRight className="w-4 h-4 rotate-180" /> Prev
+            </button>
+
+            <button
+              onClick={playAll}
+              className="flex-1 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black uppercase text-sm tracking-widest rounded-2xl hover:scale-105 transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-3"
+            >
+              <Play className="w-5 h-5 fill-current" />
+              {isContinuousPlay ? 'Playing All...' : 'Play All Scenes'}
+            </button>
+
+            <button
+              onClick={nextScene}
+              disabled={currentAssetIndex === assets.length - 1}
+              className="px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-black uppercase text-xs tracking-widest hover:bg-white/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              Next <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="max-w-md mx-auto space-y-4">
+            <button
+              onClick={renderFullVideo}
+              disabled={isRendering}
+              className="w-full py-7 bg-white text-black font-black uppercase tracking-[0.4em] rounded-[2rem] shadow-2xl transition-all hover:scale-[1.03] flex items-center justify-center gap-4 disabled:opacity-50"
+            >
+              {isRendering ? (
+                <><Loader2 className="w-6 h-6 animate-spin" /> Finalizing ({renderProgress}%)</>
+              ) : (
+                <><Smartphone className="w-6 h-6" /> Export to Mobile</>
+              )}
+            </button>
+
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => copyToClipboard(fullCaption, 'all')}
+                className="py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl flex items-center justify-center gap-3 transition-all"
+              >
+                {copiedSection === 'all' ? <ClipboardCheck className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copiedSection === 'all' ? 'Copied Caption' : 'Copy Caption'}
+              </button>
+              <button
+                onClick={handleSaveProject}
+                disabled={isSaved}
+                className="py-5 bg-white/5 border border-white/5 hover:bg-emerald-500/20 text-emerald-500 font-black uppercase tracking-widest text-[10px] rounded-2xl flex items-center justify-center gap-3 transition-all disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" /> {isSaved ? "Saved" : "Save Project"}
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-12">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold text-white uppercase italic tracking-tight">Your Ad Caption</h3>
-              <button 
+              <button
                 onClick={() => copyToClipboard(fullCaption, 'all')}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${copiedSection === 'all' ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'bg-white/5 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/10'}`}
               >
@@ -300,61 +408,61 @@ const ExportPack: React.FC<Props> = ({ product, copy, script, assets, onReset, o
                 {copiedSection === 'all' ? 'Copied All!' : 'Copy All'}
               </button>
             </div>
-            
+
             <div className="glass-card rounded-[2.5rem] p-1 border-white/5 overflow-hidden group">
-               <div className="bg-slate-950/40 p-10 space-y-8 rounded-[2.4rem] relative">
-                  <div className="space-y-3 group/segment">
-                     <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Viral Hook</span>
-                        <button onClick={() => copyToClipboard(copy.hooks[0], 'hook')} className="p-2 text-slate-600 hover:text-white transition-colors opacity-0 group-hover/segment:opacity-100">
-                          {copiedSection === 'hook' ? <CheckCircle className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                        </button>
-                     </div>
-                     <p className="text-lg font-black text-white uppercase italic">
-                       {copy.hooks[0]}
-                     </p>
+              <div className="bg-slate-950/40 p-10 space-y-8 rounded-[2.4rem] relative">
+                <div className="space-y-3 group/segment">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Viral Hook</span>
+                    <button onClick={() => copyToClipboard(copy.hooks[0], 'hook')} className="p-2 text-slate-600 hover:text-white transition-colors opacity-0 group-hover/segment:opacity-100">
+                      {copiedSection === 'hook' ? <CheckCircle className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
                   </div>
+                  <p className="text-lg font-black text-white uppercase italic">
+                    {copy.hooks[0]}
+                  </p>
+                </div>
 
-                  <div className="space-y-3 pt-6 border-t border-white/5 group/segment">
-                     <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Post Content</span>
-                        <button onClick={() => copyToClipboard(copy.shortCopy, 'body')} className="p-2 text-slate-600 hover:text-white transition-colors opacity-0 group-hover/segment:opacity-100">
-                          {copiedSection === 'body' ? <CheckCircle className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                        </button>
-                     </div>
-                     <p className="text-sm text-slate-200 font-medium leading-relaxed italic pr-4">
-                       {copy.shortCopy}
-                     </p>
+                <div className="space-y-3 pt-6 border-t border-white/5 group/segment">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Post Content</span>
+                    <button onClick={() => copyToClipboard(copy.shortCopy, 'body')} className="p-2 text-slate-600 hover:text-white transition-colors opacity-0 group-hover/segment:opacity-100">
+                      {copiedSection === 'body' ? <CheckCircle className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
                   </div>
+                  <p className="text-sm text-slate-200 font-medium leading-relaxed italic pr-4">
+                    {copy.shortCopy}
+                  </p>
+                </div>
 
-                  <div className="space-y-3 pt-6 border-t border-white/5 group/segment">
-                     <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Call to Action</span>
-                        <button onClick={() => copyToClipboard(copy.ctaLines[0], 'cta')} className="p-2 text-slate-600 hover:text-white transition-colors opacity-0 group-hover/segment:opacity-100">
-                          {copiedSection === 'cta' ? <CheckCircle className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                        </button>
-                     </div>
-                     <p className="text-base font-black text-white tracking-tight italic">
-                       {copy.ctaLines[0]}
-                     </p>
+                <div className="space-y-3 pt-6 border-t border-white/5 group/segment">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Call to Action</span>
+                    <button onClick={() => copyToClipboard(copy.ctaLines[0], 'cta')} className="p-2 text-slate-600 hover:text-white transition-colors opacity-0 group-hover/segment:opacity-100">
+                      {copiedSection === 'cta' ? <CheckCircle className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
                   </div>
+                  <p className="text-base font-black text-white tracking-tight italic">
+                    {copy.ctaLines[0]}
+                  </p>
+                </div>
 
-                  <div className="space-y-3 pt-6 border-t border-white/5 group/segment">
-                     <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Optimized Tags</span>
-                        <button onClick={() => copyToClipboard(copy.hashtags.join(" "), 'tags')} className="p-2 text-slate-600 hover:text-white transition-colors opacity-0 group-hover/segment:opacity-100">
-                          {copiedSection === 'tags' ? <CheckCircle className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                        </button>
-                     </div>
-                     <div className="flex flex-wrap gap-2">
-                       {copy.hashtags.map(tag => (
-                         <span key={tag} className="flex items-center gap-1 px-3 py-1 bg-white/5 rounded text-[10px] font-black text-slate-500 uppercase tracking-widest border border-white/5">
-                            <Hash className="w-2 h-2" /> {tag.replace('#','')}
-                         </span>
-                       ))}
-                     </div>
+                <div className="space-y-3 pt-6 border-t border-white/5 group/segment">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Optimized Tags</span>
+                    <button onClick={() => copyToClipboard(copy.hashtags.join(" "), 'tags')} className="p-2 text-slate-600 hover:text-white transition-colors opacity-0 group-hover/segment:opacity-100">
+                      {copiedSection === 'tags' ? <CheckCircle className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
                   </div>
-               </div>
+                  <div className="flex flex-wrap gap-2">
+                    {copy.hashtags.map(tag => (
+                      <span key={tag} className="flex items-center gap-1 px-3 py-1 bg-white/5 rounded text-[10px] font-black text-slate-500 uppercase tracking-widest border border-white/5">
+                        <Hash className="w-2 h-2" /> {tag.replace('#', '')}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -364,25 +472,25 @@ const ExportPack: React.FC<Props> = ({ product, copy, script, assets, onReset, o
               <Send className="w-4 h-4 text-slate-600" />
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-               {socialPlatforms.map((p) => (
-                 <button 
-                   key={p.id} 
-                   onClick={() => handleSocialShare(p.id)} 
-                   className={`flex flex-col items-center justify-center p-6 glass-card rounded-[2rem] border-white/5 transition-all group ${p.color}`}
-                 >
-                    <p.icon className="w-7 h-7 mb-3 text-slate-500 group-hover:inherit transition-colors" />
-                    <span className="text-[10px] font-black text-slate-500 group-hover:inherit uppercase tracking-widest">{p.label}</span>
-                 </button>
-               ))}
+              {socialPlatforms.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => handleSocialShare(p.id)}
+                  className={`flex flex-col items-center justify-center p-6 glass-card rounded-[2rem] border-white/5 transition-all group ${p.color}`}
+                >
+                  <p.icon className="w-7 h-7 mb-3 text-slate-500 group-hover:inherit transition-colors" />
+                  <span className="text-[10px] font-black text-slate-500 group-hover:inherit uppercase tracking-widest">{p.label}</span>
+                </button>
+              ))}
             </div>
             {socialStatus && (
-               <div className="text-center text-sm font-black text-emerald-400 animate-pulse tracking-widest uppercase italic">
-                 {socialStatus}
-               </div>
+              <div className="text-center text-sm font-black text-emerald-400 animate-pulse tracking-widest uppercase italic">
+                {socialStatus}
+              </div>
             )}
           </div>
 
-          <button 
+          <button
             onClick={onReset}
             className="w-full py-8 text-slate-600 hover:text-white font-black uppercase text-xs tracking-[0.3em] flex items-center justify-center gap-4 transition-all"
           >

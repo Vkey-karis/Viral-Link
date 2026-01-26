@@ -435,9 +435,14 @@ export const generateSpeech = async (text: string, voiceName: string = 'Puck'): 
   try {
     // Using gemini-2.5-flash-preview-tts for Audio capability
     console.log("Generating speech with model: gemini-2.5-flash-preview-tts");
+    console.log("Text to synthesize:", text);
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-tts",
-      contents: [{ parts: [{ text }] }],
+      contents: [{
+        role: 'user',
+        parts: [{ text: `Generate audio for the following text:\n\n${text}` }]
+      }],
       config: {
         responseModalities: [Modality.AUDIO],
         speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } },
@@ -454,7 +459,9 @@ export const generateSpeech = async (text: string, voiceName: string = 'Puck'): 
     const binaryString = window.atob(base64Audio);
     const bytes = new Uint8Array(binaryString.length);
     for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-    return URL.createObjectURL(new Blob([bytes], { type: 'audio/wav' }));
+
+    // Use audio/mpeg as the MIME type (TTS typically returns MP3)
+    return URL.createObjectURL(new Blob([bytes], { type: 'audio/mpeg' }));
   } catch (error: any) {
     console.error('Audio generation error:', error);
     throw new Error(`Failed to generate audio: ${error.message || 'Unknown error'}`);
