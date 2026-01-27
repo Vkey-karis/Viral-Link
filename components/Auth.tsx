@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { supabase } from '../services/supabaseClient';
-import { LogIn, UserPlus, Loader2, Sparkles, ShieldCheck, AlertCircle, ExternalLink, CheckCircle2, Info, Github } from 'lucide-react';
+import { LogIn, UserPlus, Loader2, Sparkles, ShieldCheck, AlertCircle, ExternalLink, CheckCircle2, Info } from 'lucide-react';
 
 interface Props {
   onAuthComplete: (isAdmin?: boolean) => void;
@@ -53,7 +53,7 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
     }
   };
 
-  const handleOAuthLogin = async (provider: 'google' | 'github') => {
+  const handleOAuthLogin = async (provider: 'google') => {
     setLoading(true);
     setError(null);
     setIs403(false);
@@ -114,7 +114,7 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
                   <li className="flex gap-2 items-start">
                     <CheckCircle2 className="w-3 h-3 text-slate-600 shrink-0 mt-0.5" />
                     <p className="text-[10px] text-slate-400 leading-tight">
-                      <strong>OAuth Provider:</strong> Ensure GitHub or Google is enabled in your Supabase Auth settings.
+                      <strong>OAuth Provider:</strong> Ensure Google is enabled in your Supabase Auth settings.
                     </p>
                   </li>
                   <li className="flex gap-2 items-start">
@@ -163,15 +163,6 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
               />
             </svg>
             <span className="tracking-tight">Sign in with Google</span>
-          </button>
-
-          <button
-            onClick={() => handleOAuthLogin('github')}
-            disabled={loading}
-            className="w-full py-4 bg-[#181717] hover:bg-[#2c2c2c] text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-3 shadow-xl disabled:opacity-50 border border-white/5"
-          >
-            <Github className="w-5 h-5" />
-            <span className="tracking-tight">Sign in with GitHub</span>
           </button>
         </div>
 
