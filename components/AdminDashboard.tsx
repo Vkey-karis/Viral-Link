@@ -173,9 +173,10 @@ const AdminDashboard: React.FC<Props> = ({ onBack }) => {
                     <div className="flex items-center gap-3 md:gap-4">
                         <button
                             onClick={onBack}
-                            className="p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-colors shrink-0"
+                            className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-xl hover:bg-white/10 transition-colors shrink-0"
                         >
-                            <ChevronLeft className="w-5 h-5" />
+                            <ChevronLeft className="w-4 h-4" />
+                            <span className="text-xs font-black uppercase tracking-widest hidden sm:inline">Back</span>
                         </button>
                         <div>
                             <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-2">

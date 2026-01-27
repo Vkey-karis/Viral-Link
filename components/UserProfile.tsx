@@ -61,9 +61,10 @@ const UserProfile: React.FC<Props> = ({ session, onBack }) => {
                 <div className="flex items-center gap-4">
                     <button
                         onClick={onBack}
-                        className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-400 hover:text-white"
+                        className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
                     >
-                        <ArrowLeft className="w-6 h-6" />
+                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                        <span className="text-sm font-black uppercase tracking-widest">Back</span>
                     </button>
                     <div>
                         <h1 className="text-3xl font-black text-white uppercase italic tracking-tighter">Your Profile</h1>

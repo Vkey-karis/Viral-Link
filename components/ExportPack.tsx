@@ -278,7 +278,15 @@ const ExportPack: React.FC<Props> = ({ product, copy, script, assets, onReset, o
 
   return (
     <div className="w-full max-w-7xl mx-auto pb-32 animate-fade-in px-4">
-      <div className="text-center space-y-8 mb-16">
+      <div className="text-center space-y-8 mb-16 relative">
+        <button
+          onClick={onRedo}
+          className="absolute top-0 left-0 hidden md:flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
+        >
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          <span className="text-sm font-black uppercase tracking-widest">Back to Editor</span>
+        </button>
+
         <div className="inline-flex items-center justify-center p-6 glass-card border-white/10 rounded-3xl relative overflow-hidden group">
           <Activity className="w-12 h-12 text-emerald-400 relative z-10" />
           <div className="absolute inset-0 bg-emerald-500/5 blur-2xl animate-pulse"></div>
