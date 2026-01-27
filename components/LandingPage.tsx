@@ -149,17 +149,17 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
             </div>
 
             {/* Mode Selection Cards */}
-            <div className="w-full max-w-6xl space-y-8">
-              <div className="text-center space-y-4">
-                <h3 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tight">
+            <div className="w-full max-w-6xl space-y-6 md:space-y-8">
+              <div className="text-center space-y-3 md:space-y-4">
+                <h3 className="text-xl md:text-2xl lg:text-3xl font-black text-white uppercase italic tracking-tight px-4">
                   Choose Your <span className="text-indigo-500">Extraction Method</span>
                 </h3>
-                <p className="text-slate-500 text-base md:text-lg font-medium max-w-2xl mx-auto">
+                <p className="text-slate-500 text-sm md:text-base lg:text-lg font-medium max-w-2xl mx-auto px-4">
                   Select how you want to discover and analyze products for viral content creation.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8 px-4">
                 {/* Direct Link Card */}
                 <button
                   onClick={() => onStart('link')}

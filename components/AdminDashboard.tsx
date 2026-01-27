@@ -44,7 +44,17 @@ const AdminDashboard: React.FC<Props> = ({ onBack }) => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [editCredits, setEditCredits] = useState(0);
     const [editTier, setEditTier] = useState<'free' | 'premium'>('free');
+    const [selectedBundle, setSelectedBundle] = useState<string>('custom');
     const [actionLoading, setActionLoading] = useState(false);
+
+    // Credit bundles
+    const creditBundles = [
+        { id: 'starter', name: '🟢 Starter', credits: 500, price: 60 },
+        { id: 'pro', name: '🔵 Pro', credits: 1500, price: 180 },
+        { id: 'growth', name: '🟣 Growth', credits: 3000, price: 360 },
+        { id: 'agency', name: '🔴 Agency', credits: 6000, price: 720 },
+        { id: 'custom', name: 'Custom Amount', credits: 0, price: 0 }
+    ];
 
     useEffect(() => {
         loadDashboardData();
@@ -94,7 +104,17 @@ const AdminDashboard: React.FC<Props> = ({ onBack }) => {
         setSelectedUser(user);
         setEditCredits(user.credits);
         setEditTier(user.subscription_tier);
+        setSelectedBundle('custom');
         setShowEditModal(true);
+    };
+
+    const handleBundleChange = (bundleId: string) => {
+        setSelectedBundle(bundleId);
+        const bundle = creditBundles.find(b => b.id === bundleId);
+        if (bundle && bundleId !== 'custom') {
+            setEditCredits(bundle.credits);
+            setEditTier('premium');
+        }
     };
 
     const handleDeleteUser = (user: UserWithProfile) => {
@@ -146,38 +166,38 @@ const AdminDashboard: React.FC<Props> = ({ onBack }) => {
     }
 
     return (
-        <div className="min-h-screen bg-black text-white p-8">
-            <div className="max-w-7xl mx-auto space-y-8">
+        <div className="min-h-screen bg-black text-white p-4 md:p-8">
+            <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
                 {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 md:gap-4">
                         <button
                             onClick={onBack}
-                            className="p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-colors"
+                            className="p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-colors shrink-0"
                         >
                             <ChevronLeft className="w-5 h-5" />
                         </button>
                         <div>
-                            <div className="flex items-center gap-3 mb-2">
-                                <Shield className="w-6 h-6 text-indigo-500" />
-                                <span className="text-xs font-black text-indigo-500 uppercase tracking-widest">Admin Control Panel</span>
+                            <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-2">
+                                <Shield className="w-5 h-5 md:w-6 md:h-6 text-indigo-500" />
+                                <span className="text-[10px] md:text-xs font-black text-indigo-500 uppercase tracking-widest">Admin Control Panel</span>
                             </div>
-                            <h1 className="text-4xl font-black italic uppercase tracking-tight">
+                            <h1 className="text-2xl md:text-4xl font-black italic uppercase tracking-tight">
                                 VIRAL<span className="text-slate-600">LINK</span> DASHBOARD
                             </h1>
                         </div>
                     </div>
                     <button
                         onClick={loadDashboardData}
-                        className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl hover:bg-white/10 transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl hover:bg-white/10 transition-colors text-sm"
                     >
                         <RefreshCw className="w-4 h-4" />
-                        <span className="text-sm font-bold uppercase tracking-widest">Refresh</span>
+                        <span className="font-bold uppercase tracking-widest hidden sm:inline">Refresh</span>
                     </button>
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     {/* Total Users */}
                     <div className="glass-card rounded-3xl p-1 border-white/5">
                         <div className="bg-slate-950/40 rounded-[1.4rem] p-6">
@@ -423,32 +443,56 @@ const AdminDashboard: React.FC<Props> = ({ onBack }) => {
                                 </div>
 
                                 <div>
-                                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Subscription Tier</label>
+                                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Credit Bundle</label>
                                     <select
-                                        value={editTier}
-                                        onChange={(e) => setEditTier(e.target.value as 'free' | 'premium')}
+                                        value={selectedBundle}
+                                        onChange={(e) => handleBundleChange(e.target.value)}
                                         className="w-full p-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-indigo-500"
                                     >
-                                        <option value="free">Free</option>
-                                        <option value="premium">Premium</option>
+                                        {creditBundles.map(bundle => (
+                                            <option key={bundle.id} value={bundle.id}>
+                                                {bundle.name} {bundle.id !== 'custom' && `(${bundle.credits} credits - $${bundle.price})`}
+                                            </option>
+                                        ))}
                                     </select>
+                                    {selectedBundle !== 'custom' && (
+                                        <p className="text-xs text-slate-500 mt-2">
+                                            This will set the user to Premium tier with {creditBundles.find(b => b.id === selectedBundle)?.credits} credits
+                                        </p>
+                                    )}
                                 </div>
 
-                                <div>
-                                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Credits</label>
-                                    <input
-                                        type="number"
-                                        value={editCredits}
-                                        onChange={(e) => setEditCredits(parseInt(e.target.value) || 0)}
-                                        className="w-full p-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-indigo-500"
-                                    />
-                                </div>
+                                {selectedBundle === 'custom' && (
+                                    <>
+                                        <div>
+                                            <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Subscription Tier</label>
+                                            <select
+                                                value={editTier}
+                                                onChange={(e) => setEditTier(e.target.value as 'free' | 'premium')}
+                                                className="w-full p-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-indigo-500"
+                                            >
+                                                <option value="free">Free</option>
+                                                <option value="premium">Premium</option>
+                                            </select>
+                                        </div>
 
-                                <div className="flex gap-3 pt-4">
+                                        <div>
+                                            <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Credits</label>
+                                            <input
+                                                type="number"
+                                                value={editCredits}
+                                                onChange={(e) => setEditCredits(parseInt(e.target.value) || 0)}
+                                                className="w-full p-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-indigo-500"
+                                            />
+                                        </div>
+                                    </>
+                                )}
+
+                                <div className="flex flex-col sm:flex-row gap-3 pt-4">
                                     <button
                                         onClick={confirmEdit}
                                         disabled={actionLoading}
-                                        className="flex-1 py-3 bg-indigo-600 text-white font-black uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                        className="flex-1 py-3 bg-indigo-600 text-white font-black uppercase tracking-widest text-sm rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                                     >
                                         {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                         Save Changes
@@ -456,7 +500,7 @@ const AdminDashboard: React.FC<Props> = ({ onBack }) => {
                                     <button
                                         onClick={() => setShowEditModal(false)}
                                         disabled={actionLoading}
-                                        className="px-6 py-3 bg-white/5 text-slate-400 font-black uppercase tracking-widest rounded-xl hover:bg-white/10 transition-colors disabled:opacity-50"
+                                        className="px-6 py-3 bg-white/5 text-slate-400 font-black uppercase tracking-widest text-sm rounded-xl hover:bg-white/10 transition-colors disabled:opacity-50"
                                     >
                                         Cancel
                                     </button>

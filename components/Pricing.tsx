@@ -206,23 +206,23 @@ const Pricing: React.FC<Props> = ({ onClose, userProfile, onPaymentSuccess }) =>
   ];
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center px-4 bg-slate-950/90 backdrop-blur-xl animate-fade-in overflow-y-auto">
-      <div className="w-full max-w-7xl my-10 relative">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center px-4 bg-slate-950/90 backdrop-blur-xl animate-fade-in overflow-y-auto py-8">
+      <div className="w-full max-w-7xl my-4 md:my-10 relative">
         <button
           onClick={onClose}
-          className="absolute -top-12 left-4 md:left-0 text-white/50 hover:text-white flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] transition-colors"
+          className="absolute -top-8 md:-top-12 left-0 text-white/50 hover:text-white flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Return
         </button>
 
-        <div className="text-center space-y-4 mb-16">
-          <h2 className="text-4xl md:text-6xl font-black text-white italic uppercase tracking-tighter">
+        <div className="text-center space-y-3 md:space-y-4 mb-8 md:mb-16">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white italic uppercase tracking-tighter px-2">
             Choose Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Credit Bundle</span>
           </h2>
-          <p className="text-slate-400 text-lg font-medium max-w-2xl mx-auto">
+          <p className="text-sm md:text-lg font-medium max-w-2xl mx-auto text-slate-400 px-2">
             💳 <strong className="text-white">100 credits = 10 seconds</strong> of affiliate-ready video. Credits never expire.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-bold text-slate-500">
+          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 text-[10px] md:text-xs font-bold text-slate-500 px-2">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Script + Hook + CTA
             </div>
@@ -235,7 +235,7 @@ const Pricing: React.FC<Props> = ({ onClose, userProfile, onPaymentSuccess }) =>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-4 md:px-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-2 md:px-4 lg:px-0">
           {tiers.map((tier, i) => (
             <div
               key={i}
