@@ -164,13 +164,13 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
       <div className="fixed top-0 right-0 p-6 z-50 flex items-center gap-4">
         <button
           onClick={() => onStart('manual')}
-          className="px-6 py-2.5 bg-slate-950/50 backdrop-blur-md border border-white/10 rounded-full text-white font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all shadow-xl"
+          className="group px-6 py-2.5 bg-slate-950/50 backdrop-blur-md border border-white/10 rounded-full text-white font-bold text-xs uppercase tracking-widest hover:bg-slate-900 hover:border-indigo-500/50 hover:text-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all duration-300 cursor-pointer active:scale-95"
         >
           Login
         </button>
         <button
           onClick={() => onStart('link')}
-          className="px-6 py-2.5 bg-indigo-600 rounded-full text-white font-black text-xs uppercase tracking-widest hover:bg-indigo-500 transition-all shadow-xl hover:scale-105 hidden sm:block"
+          className="group relative px-6 py-2.5 bg-indigo-600 rounded-full text-white font-black text-xs uppercase tracking-widest hover:bg-indigo-500 hover:scale-110 hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] transition-all duration-300 cursor-pointer active:scale-95 ring-4 ring-transparent hover:ring-indigo-500/20"
         >
           Sign Up
         </button>
