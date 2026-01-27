@@ -75,6 +75,32 @@ const StepCard = ({ number, title, desc, icon: Icon }: { number: string, title: 
   </div>
 );
 
+const TypewriterText = ({ text, delay = 0 }: { text: string; delay?: number }) => {
+  const [displayText, setDisplayText] = useState('');
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setStarted(true);
+      let i = 0;
+      const interval = setInterval(() => {
+        setDisplayText(text.substring(0, i + 1));
+        i++;
+        if (i === text.length) clearInterval(interval);
+      }, 80);
+      return () => clearInterval(interval);
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [text, delay]);
+
+  return (
+    <span className="inline-flex">
+      {displayText}
+      <span className={`w-1 md:w-2 bg-indigo-500 ml-1 animate-pulse ${started ? 'opacity-100' : 'opacity-0'}`}>&nbsp;</span>
+    </span>
+  );
+};
+
 const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
   const [scrolled, setScrolled] = useState(false);
 
@@ -134,16 +160,31 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
             </div>
 
             {/* Main Headline */}
-            <div className="space-y-8">
-              <h1 className="text-5xl md:text-[8rem] font-black tracking-tighter leading-[0.85] uppercase italic text-white drop-shadow-2xl">
+            {/* Main Headline */}
+            <div className="space-y-6 relative z-10">
+              <style>{`
+                @keyframes fadeInUp {
+                  from { opacity: 0; transform: translateY(20px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in-up {
+                  animation: fadeInUp 0.8s ease-out forwards;
+                }
+                .animate-delay-200 { animation-delay: 0.2s; }
+                .animate-delay-500 { animation-delay: 0.5s; }
+              `}</style>
+
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[0.9] uppercase italic text-white drop-shadow-2xl opacity-0 animate-fade-in-up">
                 THE FASTEST WAY TO <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-400 to-pink-400 text-glow">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-400 to-pink-400 text-glow opacity-0 animate-fade-in-up animate-delay-200 block mt-2">
                   CREATE AFFILIATE VIDEOS
                 </span>
-                <br />
-                <span className="text-indigo-400">THAT CONVERT</span>
+                <span className="block mt-2 text-indigo-400 h-[1.2em]">
+                  <TypewriterText text="THAT CONVERT" delay={1000} />
+                </span>
               </h1>
-              <p className="max-w-3xl mx-auto text-slate-400 text-lg md:text-2xl font-medium leading-relaxed">
+
+              <p className="max-w-2xl mx-auto text-slate-400 text-sm md:text-lg font-medium leading-relaxed opacity-0 animate-fade-in-up animate-delay-500">
                 From idea → post in <strong className="text-white">under 2 minutes</strong>. Paste any product link and get affiliate-ready videos with scripts, hooks, and CTAs designed to convert, not just look good.
               </p>
             </div>
