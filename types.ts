@@ -34,7 +34,7 @@ export type VideoTemplate = 'VIRAL_HOOK' | 'BEFORE_AFTER' | 'UNBOXING' | 'TOP_LI
 
 export interface VideoScript {
   duration: '15s' | '30s' | '40s';
-  voiceName: string; 
+  voiceName: string;
   template: VideoTemplate;
   scenes: {
     visual: string;
@@ -67,5 +67,6 @@ export enum AppStep {
   VIDEO = 3,
   EXPORT = 4,
   HISTORY = 5,
-  SEO_GUIDES = 6
+  SEO_GUIDES = 6,
+  PROFILE = 8
 }

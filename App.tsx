@@ -10,6 +10,7 @@ import ExportPack from './components/ExportPack';
 import ProjectHistory from './components/ProjectHistory';
 import Auth from './components/Auth';
 import AdminDashboard from './components/AdminDashboard';
+import UserProfile from './components/UserProfile';
 import { supabase } from './services/supabaseClient';
 import { Sparkles, History, Layout, Activity, User, LogOut, Shield } from 'lucide-react';
 
@@ -109,6 +110,9 @@ const App: React.FC = () => {
                 <button onClick={() => setStep(AppStep.HISTORY)} className="px-5 py-2.5 bg-white/5 border border-white/10 text-slate-400 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest hidden md:flex items-center gap-2">
                   <History className="w-4 h-4" /> History
                 </button>
+                <button onClick={() => setStep(AppStep.PROFILE)} className="px-5 py-2.5 bg-white/5 border border-white/10 text-slate-400 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest hidden md:flex items-center gap-2">
+                  <User className="w-4 h-4" /> Profile
+                </button>
                 <button onClick={handleSignOut} className="p-2.5 bg-slate-900 border border-white/10 text-slate-500 hover:text-red-400 rounded-xl transition-all">
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -135,6 +139,11 @@ const App: React.FC = () => {
             {step === AppStep.HISTORY && (
               <div className="animate-fade-in px-6">
                 <ProjectHistory onLoadProject={(p) => { setProductData(p.productData); setAdCopy(p.adCopy); setScript(p.script); setStep(AppStep.STRATEGY); }} onBack={() => setStep(AppStep.LANDING)} />
+              </div>
+            )}
+            {step === AppStep.PROFILE && (
+              <div className="animate-fade-in">
+                <UserProfile session={session} onBack={() => setStep(AppStep.LANDING)} />
               </div>
             )}
             {step === 7 && isAdmin && (
