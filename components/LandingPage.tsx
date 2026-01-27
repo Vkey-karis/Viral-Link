@@ -160,6 +160,21 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
 
   return (
     <div className="relative overflow-x-hidden">
+      {/* Top Navigation Actions */}
+      <div className="fixed top-0 right-0 p-6 z-50 flex items-center gap-4">
+        <button
+          onClick={() => onStart('manual')}
+          className="px-6 py-2.5 bg-slate-950/50 backdrop-blur-md border border-white/10 rounded-full text-white font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all shadow-xl"
+        >
+          Login
+        </button>
+        <button
+          onClick={() => onStart('link')}
+          className="px-6 py-2.5 bg-indigo-600 rounded-full text-white font-black text-xs uppercase tracking-widest hover:bg-indigo-500 transition-all shadow-xl hover:scale-105 hidden sm:block"
+        >
+          Sign Up
+        </button>
+      </div>
       {/* Background Decorative Grid */}
       <div className="absolute inset-0 z-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
       <div className="absolute inset-0 z-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20 pointer-events-none"></div>
@@ -322,10 +337,10 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
             </div>
           </div>
         </div>
-      </section >
+      </section>
 
       {/* Visual Roadmap */}
-      < section id="steps" className="py-32 px-6 relative z-10 bg-slate-950/20" >
+      <section id="steps" className="py-32 px-6 relative z-10 bg-slate-950/20">
         <div className="max-w-7xl mx-auto space-y-24">
           <div className="text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-indigo-400 text-[10px] font-black uppercase tracking-widest">
@@ -357,10 +372,10 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
             />
           </div>
         </div>
-      </section >
+      </section>
 
       {/* Strategy Blueprints Teaser */}
-      < section id="blueprints" className="py-40 px-6 relative z-10 border-y border-white/5 bg-indigo-500/[0.02]" >
+      <section id="blueprints" className="py-40 px-6 relative z-10 border-y border-white/5 bg-indigo-500/[0.02]">
         <div className="max-w-7xl mx-auto space-y-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8">
@@ -392,10 +407,10 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
             </div>
           </div>
         </div>
-      </section >
+      </section>
 
       {/* How Affiliates Use It */}
-      < section id="features" className="py-40 px-6 relative z-10" >
+      <section id="features" className="py-40 px-6 relative z-10">
         <div className="max-w-7xl mx-auto space-y-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <div className="space-y-10">
@@ -453,10 +468,10 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
             </div>
           </div>
         </div>
-      </section >
+      </section>
 
       {/* Final CTA */}
-      < section className="py-40 px-6" >
+      <section className="py-40 px-6">
         <div className="max-w-6xl mx-auto glass-card rounded-[5rem] p-24 text-center space-y-12 border border-white/10 relative overflow-hidden group shadow-[0_50px_100px_rgba(0,0,0,0.5)]">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-indigo-500/5 to-transparent"></div>
           <div className="relative z-10 space-y-8">
@@ -477,7 +492,15 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
             </button>
           </div>
         </div>
-      </section >
+      </section>
+
+      {/* Scroll To Top Button */}
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className={`fixed bottom-6 right-6 z-50 p-4 bg-indigo-600 rounded-full text-white shadow-2xl hover:bg-indigo-500 transition-all duration-500 hover:scale-110 ${scrolled ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
+      >
+        <ChevronUp className="w-6 h-6" />
+      </button>
 
       <footer className="py-20 text-center relative z-10 border-t border-white/5 mt-20">
         <div className="flex justify-center gap-8 mb-10 opacity-40">
@@ -487,7 +510,7 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
         </div>
         <p className="text-[10px] font-black uppercase tracking-[0.8em] text-slate-700">ViralLink AI • Empowering Global Creators</p>
       </footer>
-    </div >
+    </div>
   );
 };
 
