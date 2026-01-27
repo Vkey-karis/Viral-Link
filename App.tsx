@@ -124,7 +124,7 @@ const App: React.FC = () => {
           <Auth onAuthComplete={handleAuthComplete} />
         ) : (
           <>
-            {step === AppStep.LANDING && <LandingPage onStart={(mode) => { setSelectedMode(mode); setStep(AppStep.INPUT); }} onViewSEO={() => setStep(AppStep.SEO_GUIDES)} />}
+            {step === AppStep.LANDING && <LandingPage onStart={(mode) => { setSelectedMode(mode); setStep(AppStep.INPUT); }} onViewSEO={() => setStep(AppStep.SEO_GUIDES)} isLoggedIn={!!session} />}
             {step === AppStep.SEO_GUIDES && <div className="pt-32"><SEOContent onBack={() => setStep(AppStep.LANDING)} /></div>}
             {step === AppStep.INPUT && <div className="animate-fade-in px-6"><LinkAnalyzer initialMode={selectedMode} onComplete={handleProductExtracted} onBack={() => setStep(AppStep.LANDING)} /></div>}
             {step === AppStep.STRATEGY && productData && <div className="animate-fade-in px-6"><StrategyBoard productData={productData} onNext={handleStrategyComplete} onBack={() => setStep(AppStep.INPUT)} /></div>}

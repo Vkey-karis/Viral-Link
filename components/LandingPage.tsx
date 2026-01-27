@@ -36,6 +36,7 @@ import {
 interface Props {
   onStart: (mode: 'link' | 'search' | 'manual') => void;
   onViewSEO: () => void;
+  isLoggedIn?: boolean;
 }
 
 const FAQItem = ({ question, answer }: { question: string, answer: string }) => {
@@ -128,7 +129,7 @@ const RevealOnScroll = ({ children, className = "", delay = 0 }: { children: Rea
   );
 };
 
-const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
+const LandingPage: React.FC<Props> = ({ onStart, onViewSEO, isLoggedIn = false }) => {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -161,20 +162,23 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
   return (
     <div className="relative overflow-x-hidden">
       {/* Top Navigation Actions */}
-      <div className="fixed top-0 right-0 p-6 z-50 flex items-center gap-4">
-        <button
-          onClick={() => onStart('manual')}
-          className="group px-6 py-2.5 bg-slate-950/50 backdrop-blur-md border border-white/10 rounded-full text-white font-bold text-xs uppercase tracking-widest hover:bg-slate-900 hover:border-indigo-500/50 hover:text-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all duration-300 cursor-pointer active:scale-95"
-        >
-          Login
-        </button>
-        <button
-          onClick={() => onStart('link')}
-          className="group relative px-6 py-2.5 bg-indigo-600 rounded-full text-white font-black text-xs uppercase tracking-widest hover:bg-indigo-500 hover:scale-110 hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] transition-all duration-300 cursor-pointer active:scale-95 ring-4 ring-transparent hover:ring-indigo-500/20"
-        >
-          Sign Up
-        </button>
-      </div>
+      {/* Top Navigation Actions - Only show if NOT logged in */}
+      {!isLoggedIn && (
+        <div className="fixed top-0 right-0 p-6 z-[101] flex items-center gap-4">
+          <button
+            onClick={() => onStart('manual')}
+            className="group px-6 py-2.5 bg-slate-950/50 backdrop-blur-md border border-white/10 rounded-full text-white font-bold text-xs uppercase tracking-widest hover:bg-slate-900 hover:border-indigo-500/50 hover:text-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all duration-300 cursor-pointer active:scale-95"
+          >
+            Login
+          </button>
+          <button
+            onClick={() => onStart('link')}
+            className="group relative px-6 py-2.5 bg-indigo-600 rounded-full text-white font-black text-xs uppercase tracking-widest hover:bg-indigo-500 hover:scale-110 hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] transition-all duration-300 cursor-pointer active:scale-95 ring-4 ring-transparent hover:ring-indigo-500/20"
+          >
+            Sign Up
+          </button>
+        </div>
+      )}
       {/* Background Decorative Grid */}
       <div className="absolute inset-0 z-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
       <div className="absolute inset-0 z-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20 pointer-events-none"></div>
