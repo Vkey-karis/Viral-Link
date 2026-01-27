@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Check, Rocket, CreditCard, ArrowLeft, Loader2, CheckCircle2, AlertCircle, Shield, Zap, Video, FileText, Search } from 'lucide-react';
+import { Check, Rocket, CreditCard, ArrowLeft, Loader2, CheckCircle2, AlertCircle, Shield, Zap, Video, FileText, Search, Smartphone, Target, Layers, MessageSquareQuote } from 'lucide-react';
 import { UserProfile } from '../services/supabaseClient';
 import { createPayPalOrder, checkUserSubscription } from '../services/paymentService';
 
@@ -132,74 +132,76 @@ const Pricing: React.FC<Props> = ({ onClose, userProfile, onPaymentSuccess }) =>
 
   const tiers = [
     {
-      name: 'Starter',
-      price: 0,
-      desc: 'For casual browsing',
+      name: '🟢 Starter',
+      price: 60,
+      credits: 500,
+      seconds: 50,
+      desc: 'Best for testing offers',
       features: [
-        { name: 'Global Market Search', icon: Search },
-        { name: 'Limited Trending Results', icon: Zap },
-        { name: 'Basic Analytics', icon: CheckCircle2 },
+        { name: 'Script + Hook + CTA', icon: FileText },
+        { name: 'Auto-format for TikTok, Reels & Shorts', icon: Smartphone },
+        { name: 'Affiliate-ready videos', icon: CheckCircle2 },
+        { name: 'Credits never expire', icon: Shield },
       ],
-      notIncluded: [
-        { name: 'Viral Scripts' },
-        { name: 'Video Rendering' }
-      ],
-      cta: 'Get Started',
-      popular: false,
-      color: 'slate',
-      action: onClose
-    },
-    {
-      name: 'Creator',
-      price: 9.99,
-      desc: 'For aspiring influencers',
-      features: [
-        { name: 'Everything in Starter', icon: Check },
-        { name: 'Deep Product Analysis', icon: Search },
-        { name: 'Viral Ad Scripts', icon: FileText },
-        { name: 'Conversion Strategy', icon: Zap },
-      ],
-      notIncluded: [
-        { name: 'AI Video Rendering' }
-      ],
-      cta: 'Upgrade Now',
-      popular: true,
-      color: 'indigo',
-      action: () => handleStartCheckout(9.99)
-    },
-    {
-      name: 'Pro Studio',
-      price: 39.99,
-      desc: 'For serious sellers',
-      features: [
-        { name: 'Everything in Creator', icon: Check },
-        { name: '15 AI Videos / Month', icon: Video },
-        { name: 'Commercial Rights', icon: Shield },
-        { name: 'No Watermarks', icon: CheckCircle2 },
-      ],
-      notIncluded: [
-        { name: 'Priority Rendering' }
-      ],
-      cta: 'Go Viral',
+      notIncluded: [],
+      cta: 'Start Testing',
       popular: false,
       color: 'emerald',
-      action: () => handleStartCheckout(39.99)
+      action: () => handleStartCheckout(60)
     },
     {
-      name: 'Empire',
-      price: 69.99,
-      desc: 'For agencies & teams',
+      name: '🔵 Pro',
+      price: 180,
+      credits: 1500,
+      seconds: 150,
+      desc: 'Ideal for consistent affiliate posting',
+      features: [
+        { name: 'Everything in Starter', icon: Check },
+        { name: 'Designed to convert, not just look good', icon: Target },
+        { name: 'From idea → post in under 2 minutes', icon: Zap },
+        { name: 'Replace 3 tools with one', icon: Layers },
+      ],
+      notIncluded: [],
+      cta: 'Go Pro',
+      popular: true,
+      color: 'indigo',
+      action: () => handleStartCheckout(180)
+    },
+    {
+      name: '🟣 Growth',
+      price: 360,
+      credits: 3000,
+      seconds: 300,
+      desc: 'Scale winning offers',
       features: [
         { name: 'Everything in Pro', icon: Check },
-        { name: '30 AI Videos / Month', icon: Rocket },
-        { name: 'Priority Rendering', icon: Zap },
-        { name: 'Dedicated Support', icon: Shield },
+        { name: 'Bulk content creation', icon: Video },
+        { name: 'Advanced conversion scripts', icon: MessageSquareQuote },
+        { name: 'Priority support', icon: Shield },
+      ],
+      notIncluded: [],
+      cta: 'Scale Up',
+      popular: false,
+      color: 'purple',
+      action: () => handleStartCheckout(360)
+    },
+    {
+      name: '🔴 Agency',
+      price: 720,
+      credits: 6000,
+      seconds: 600,
+      desc: 'Bulk creation + priority queue',
+      features: [
+        { name: 'Everything in Growth', icon: Check },
+        { name: 'Team collaboration', icon: Rocket },
+        { name: 'Priority rendering queue', icon: Zap },
+        { name: 'Dedicated account manager', icon: Shield },
       ],
       notIncluded: [],
       cta: 'Dominate',
       popular: false,
-      color: 'amber',
-      action: () => handleStartCheckout(69.99)
+      color: 'red',
+      action: () => handleStartCheckout(720)
     }
   ];
 
@@ -215,11 +217,22 @@ const Pricing: React.FC<Props> = ({ onClose, userProfile, onPaymentSuccess }) =>
 
         <div className="text-center space-y-4 mb-16">
           <h2 className="text-4xl md:text-6xl font-black text-white italic uppercase tracking-tighter">
-            Choose Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Weapon</span>
+            Choose Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Credit Bundle</span>
           </h2>
           <p className="text-slate-400 text-lg font-medium max-w-2xl mx-auto">
-            Scale your content creation with the power of AI. Cancel anytime.
+            💳 <strong className="text-white">100 credits = 10 seconds</strong> of affiliate-ready video. Credits never expire.
           </p>
+          <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-bold text-slate-500">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Script + Hook + CTA
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Auto-formatted for TikTok, Reels & Shorts
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Designed to convert
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-4 md:px-0">
@@ -236,9 +249,15 @@ const Pricing: React.FC<Props> = ({ onClose, userProfile, onPaymentSuccess }) =>
 
               <div className="space-y-2 mb-8 relative z-10">
                 <h3 className="text-xl font-black text-white uppercase italic tracking-tighter">{tier.name}</h3>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-white tracking-tighter">${tier.price}</span>
-                  <span className="text-xs font-bold text-slate-500">/ mo</span>
+                <div className="space-y-1">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-black text-white tracking-tighter">{tier.credits}</span>
+                    <span className="text-sm font-bold text-slate-400">credits</span>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xl font-black text-indigo-400 tracking-tight">${tier.price}</span>
+                    <span className="text-xs font-medium text-slate-500">({tier.seconds} seconds of video)</span>
+                  </div>
                 </div>
                 <p className="text-slate-400 text-[10px] font-medium leading-tight h-8">{tier.desc}</p>
               </div>

@@ -135,14 +135,16 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
 
             {/* Main Headline */}
             <div className="space-y-8">
-              <h1 className="text-6xl md:text-[10rem] font-black tracking-tighter leading-[0.8] uppercase italic text-white drop-shadow-2xl">
-                LINKS TO <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-white to-purple-400 text-glow">
-                  VIRAL GOLD
+              <h1 className="text-5xl md:text-[8rem] font-black tracking-tighter leading-[0.85] uppercase italic text-white drop-shadow-2xl">
+                THE FASTEST WAY TO <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-400 to-pink-400 text-glow">
+                  CREATE AFFILIATE VIDEOS
                 </span>
+                <br />
+                <span className="text-indigo-400">THAT CONVERT</span>
               </h1>
-              <p className="max-w-2xl mx-auto text-slate-400 text-lg md:text-2xl font-medium leading-relaxed opacity-80">
-                Stop fighting with video editors. Paste any product link and watch our AI transform it into a high-converting social media masterpiece.
+              <p className="max-w-3xl mx-auto text-slate-400 text-lg md:text-2xl font-medium leading-relaxed">
+                From idea → post in <strong className="text-white">under 2 minutes</strong>. Paste any product link and get affiliate-ready videos with scripts, hooks, and CTAs designed to convert, not just look good.
               </p>
             </div>
 
@@ -229,9 +231,9 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
               </div>
 
               <div className="mt-8 flex flex-wrap items-center justify-center gap-8 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Instant Marketplace Scraper</div>
-                <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Psychology-Backed Scripts</div>
-                <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Cinematic 9:16 Video Rendering</div>
+                <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Affiliate-Ready Videos</div>
+                <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Replace 3 Tools With One</div>
+                <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Designed To Convert</div>
               </div>
             </div>
 
@@ -327,27 +329,30 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
         </div>
       </section>
 
-      {/* Human-Centric Benefits */}
+      {/* How Affiliates Use It */}
       <section id="features" className="py-40 px-6 relative z-10">
         <div className="max-w-7xl mx-auto space-y-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <div className="space-y-10">
               <div className="space-y-4">
-                <h3 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase">SCALE YOUR <br /> <span className="text-indigo-500">SIDE HUSTLE.</span></h3>
-                <p className="text-slate-400 text-xl font-medium leading-relaxed">Whether you're an affiliate pro or just starting your journey, ViralLink removes the friction from content creation.</p>
+                <div className="inline-flex items-center gap-2 px-4 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-[10px] font-black uppercase tracking-widest">
+                  💰 Earnings Potential
+                </div>
+                <h3 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase">TURN LINKS INTO <br /> <span className="text-emerald-500">COMMISSIONS.</span></h3>
+                <p className="text-slate-400 text-xl font-medium leading-relaxed">Whether you're an affiliate pro or just starting your journey, ViralLink removes the friction from content creation so you can focus on what matters: <strong className="text-white">converting viewers into buyers</strong>.</p>
               </div>
               <div className="space-y-6">
                 {[
-                  { title: "Universal Scraper", text: "Amazon, Jumia, Selar—we scan them all instantly." },
-                  { title: "Natural AI Voices", text: "Voices that sound like real people, not computer chips." },
-                  { title: "Conversion Scripts", text: "Built on psychological triggers that force scrollers to stop." }
+                  { title: "⚡ Speed Advantage", text: "From idea → post in under 2 minutes. Post 10x more than competitors." },
+                  { title: "🎯 Built To Convert", text: "Psychology-backed scripts with hooks and CTAs that force scrollers to stop." },
+                  { title: "🔄 Replace 3 Tools", text: "Script writing + video editing + formatting = one platform." }
                 ].map((feat, i) => (
                   <div key={i} className="flex gap-6 group">
-                    <div className="shrink-0 w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-indigo-500/50 transition-all">
-                      <CheckCircle2 className="w-5 h-5 text-indigo-500" />
+                    <div className="shrink-0 w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-emerald-500/50 transition-all">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                     </div>
                     <div className="space-y-1">
-                      <h4 className="text-lg font-bold text-white uppercase tracking-tight">{feat.title}</h4>
+                      <h4 className="text-lg font-bold text-white tracking-tight">{feat.title}</h4>
                       <p className="text-slate-500 text-sm">{feat.text}</p>
                     </div>
                   </div>
@@ -355,12 +360,29 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO }) => {
               </div>
             </div>
             <div className="relative group">
-              <div className="absolute -inset-4 bg-indigo-500/10 blur-3xl rounded-[4rem]"></div>
-              <div className="relative glass-card aspect-video rounded-[3rem] border-white/10 overflow-hidden shadow-2xl flex items-center justify-center p-12">
-                <div className="text-center space-y-6">
-                  <Heart className="w-16 h-16 text-pink-500 mx-auto fill-current animate-pulse" />
-                  <h4 className="text-2xl font-black text-white uppercase italic">Built for Creators</h4>
-                  <p className="text-slate-400 text-sm leading-relaxed">We know how much effort daily posting takes. ViralLink is your secret weapon for consistency and growth.</p>
+              <div className="absolute -inset-4 bg-emerald-500/10 blur-3xl rounded-[4rem]"></div>
+              <div className="relative glass-card rounded-[3rem] border-white/10 overflow-hidden shadow-2xl p-12 space-y-8">
+                <div className="text-center space-y-4">
+                  <TrendingUp className="w-16 h-16 text-emerald-500 mx-auto" />
+                  <h4 className="text-3xl font-black text-white uppercase italic">How Affiliates Use It</h4>
+                </div>
+                <div className="space-y-6">
+                  {[
+                    { step: "1", title: "Find Winning Product", desc: "Browse Amazon, TikTok Shop, or any marketplace" },
+                    { step: "2", title: "Paste Link", desc: "ViralLink extracts features, price, and pain points" },
+                    { step: "3", title: "Generate Video", desc: "AI creates script, hook, CTA, and renders video" },
+                    { step: "4", title: "Post & Earn", desc: "Share to TikTok, Reels, Shorts with your affiliate link" }
+                  ].map((item, i) => (
+                    <div key={i} className="flex gap-4 items-start">
+                      <div className="shrink-0 w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center border border-emerald-500/30">
+                        <span className="text-emerald-400 font-black text-sm">{item.step}</span>
+                      </div>
+                      <div className="space-y-1">
+                        <h5 className="text-white font-bold text-sm">{item.title}</h5>
+                        <p className="text-slate-500 text-xs leading-relaxed">{item.desc}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
