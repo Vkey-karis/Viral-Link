@@ -86,16 +86,16 @@ const App: React.FC = () => {
     <div className="min-h-screen text-white selection:bg-indigo-500 selection:text-white relative">
 
       {/* Universal Header */}
-      <header className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${step === AppStep.LANDING ? 'py-8' : 'py-4 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 shadow-2xl'}`}>
+      <header className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 pointer-events-none ${step === AppStep.LANDING ? 'py-8' : 'py-4 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 shadow-2xl'}`}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setStep(AppStep.LANDING)}>
+          <div className="flex items-center gap-3 cursor-pointer group pointer-events-auto" onClick={() => setStep(AppStep.LANDING)}>
             <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-lg shadow-indigo-600/20">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <h1 className="font-black text-2xl tracking-tighter uppercase italic">Viral<span className="text-indigo-400">Link</span></h1>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 pointer-events-auto">
             {session && (
               <>
                 {isAdmin && (
