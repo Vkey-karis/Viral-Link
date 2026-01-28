@@ -197,7 +197,7 @@ export const findTrendingProducts = async (keyword: string): Promise<TrendingPro
 
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.0-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -239,7 +239,7 @@ export const extractProductInfo = async (url: string, language: string = 'Englis
 
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.0-flash",
       contents: prompt,
       config: {
         // Removed googleSearch tool to avoid conflict with JSON parsing
@@ -300,7 +300,7 @@ export const generateViralCopy = async (product: ProductData): Promise<AdCopyPac
 
   return callWithRetry(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.0-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -366,7 +366,7 @@ export const generateVideoScript = async (product: ProductData, duration: string
   try {
     return await callWithRetry(async () => {
       const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash-exp",
+        model: "gemini-2.0-flash",
         contents: prompt,
         config: {
           responseMimeType: "application/json",
@@ -438,7 +438,7 @@ export const generateSpeech = async (text: string, voiceName: string = 'Puck'): 
     console.log("Text to synthesize:", text);
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-tts",
+      model: "gemini-2.0-flash",
       contents: [{
         role: 'user',
         parts: [{ text: `Generate audio for the following text:\n\n${text}` }]
