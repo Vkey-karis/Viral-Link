@@ -207,13 +207,16 @@ const Pricing: React.FC<Props> = ({ onClose, userProfile, onPaymentSuccess }) =>
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center px-4 bg-slate-950/90 backdrop-blur-xl animate-fade-in overflow-y-auto py-8">
-      <div className="w-full max-w-7xl my-4 md:my-10 relative">
-        <button
-          onClick={onClose}
-          className="absolute -top-8 md:-top-12 left-0 text-white/50 hover:text-white flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" /> Return
-        </button>
+      <div className="w-full max-w-7xl my-4 md:my-10 relative px-4 md:px-8">
+        {/* Top Navigation */}
+        <div className="flex justify-start mb-8">
+          <button
+            onClick={onClose}
+            className="flex items-center gap-2 text-white/70 hover:text-white hover:bg-white/10 px-4 py-2 rounded-full transition-all text-xs font-black uppercase tracking-[0.2em] group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to App
+          </button>
+        </div>
 
         <div className="text-center space-y-3 md:space-y-4 mb-8 md:mb-16">
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white italic uppercase tracking-tighter px-2">
@@ -310,10 +313,19 @@ const Pricing: React.FC<Props> = ({ onClose, userProfile, onPaymentSuccess }) =>
           ))}
         </div>
 
-        <div className="mt-12 text-center">
+        <div className="mt-12 text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/5">
             <Shield className="w-3 h-3 text-emerald-500" />
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Secure Payment Processing</span>
+          </div>
+
+          <div>
+            <button
+              onClick={onClose}
+              className="text-slate-500 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors py-2 px-4"
+            >
+              No Check Now, Go Back
+            </button>
           </div>
         </div>
       </div>
