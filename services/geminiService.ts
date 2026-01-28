@@ -200,14 +200,18 @@ export const findTrendingProducts = async (keyword: string): Promise<TrendingPro
       model: "gemini-2.0-flash",
       contents: prompt,
       config: {
-        responseMimeType: "application/json",
-        responseSchema: productsSchema,
         tools: [{ googleSearch: {} }],
+        // schema validation removed to allow search tool usage
       }
     });
 
-    const data = JSON.parse(response.text || "[]");
-    return Array.isArray(data) ? data : [];
+    try {
+      const data = cleanAndParseJson<TrendingProduct[]>(response.text || "[]");
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      console.error("Failed to parse trending products:", e);
+      return [];
+    }
   }, 3, 4000);
 };
 
