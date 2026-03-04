@@ -186,6 +186,7 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO, isLoggedIn = false }
       {/* Floating Sub-Nav */}
       <nav className={`fixed top-24 left-1/2 -translate-x-1/2 z-[100] w-fit px-8 py-4 glass-card rounded-full border-white/10 hidden md:flex items-center gap-8 transition-all duration-700 ${scrolled ? 'translate-y-0 opacity-100 shadow-[0_30px_60px_rgba(0,0,0,0.5)]' : '-translate-y-20 opacity-0 pointer-events-none'}`}>
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Top</button>
+        <button onClick={() => document.getElementById('onboarding')?.scrollIntoView({ behavior: 'smooth' })} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Watch Demo</button>
         <button onClick={() => document.getElementById('steps')?.scrollIntoView({ behavior: 'smooth' })} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">How it works</button>
         <button onClick={() => document.getElementById('blueprints')?.scrollIntoView({ behavior: 'smooth' })} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Blueprints</button>
         <div className="w-px h-4 bg-white/10"></div>
@@ -206,31 +207,74 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO, isLoggedIn = false }
             </div>
 
             {/* Main Headline */}
-            {/* Main Headline */}
             <div className="space-y-6 relative z-10 min-h-[300px]"> {/* min-h prevents layout shift */}
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[0.9] uppercase italic text-white drop-shadow-2xl">
                 <div className="block">
-                  <TypewriterText text="THE FASTEST WAY TO" delay={0} hideCursor={true} />
+                  <TypewriterText text="THE AI PLATFORM FOR" delay={0} hideCursor={true} />
                 </div>
                 <div className="block mt-2">
                   <TypewriterText
-                    text="CREATE AFFILIATE VIDEOS"
+                    text="AFFILIATE MARKETERS"
                     delay={1000}
                     hideCursor={true}
                     className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-400 to-pink-400 text-glow"
                   />
                 </div>
                 <div className="block mt-2 text-indigo-400 h-[1.2em]">
-                  <TypewriterText text="THAT CONVERT" delay={2500} />
+                  <TypewriterText text="WHO WANT COMMISSIONS" delay={2500} />
                 </div>
               </h1>
 
               <RevealOnScroll delay={3000}>
                 <p className="max-w-2xl mx-auto text-slate-400 text-sm md:text-lg font-medium leading-relaxed">
-                  From idea → post in <strong className="text-white">under 2 minutes</strong>. Paste any product link and get affiliate-ready videos with scripts, hooks, and CTAs designed to convert, not just look good.
+                  ViralLink is your complete affiliate marketing engine. Find winning products, generate AI-powered video content, and turn every link into <strong className="text-white">real commissions</strong> — all in one place.
                 </p>
               </RevealOnScroll>
             </div>
+
+            {/* Onboarding Video Section */}
+            <RevealOnScroll delay={200} className="w-full max-w-5xl space-y-10">
+              <div className="text-center space-y-3">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-indigo-400 text-[10px] font-black uppercase tracking-widest">
+                  <PlayCircle className="w-3 h-3" /> Watch & Learn
+                </div>
+                <h2 className="text-3xl md:text-5xl font-black text-white italic tracking-tighter uppercase leading-none">
+                  SEE HOW IT <span className="text-indigo-500">WORKS.</span>
+                </h2>
+                <p className="text-slate-400 text-sm md:text-base font-medium max-w-xl mx-auto leading-relaxed">
+                  Watch our full onboarding walkthrough and discover exactly how ViralLink turns affiliate links into commissions.
+                </p>
+              </div>
+
+              <div className="relative group">
+                <div className="absolute -inset-4 bg-indigo-500/10 blur-3xl rounded-[4rem] opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative glass-card rounded-[3rem] border border-white/10 overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.6)] aspect-video">
+                  {/* REPLACE src WITH YOUR YOUTUBE EMBED URL: https://www.youtube.com/embed/YOUR_VIDEO_ID */}
+                  <iframe
+                    id="onboarding-video"
+                    src="https://www.youtube.com/embed/placeholder"
+                    title="ViralLink Onboarding — How It Works"
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    style={{ border: 'none' }}
+                  />
+                  {/* Placeholder overlay — remove once real YouTube src is set */}
+                  <div
+                    id="video-placeholder-overlay"
+                    className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950 gap-6 pointer-events-none"
+                  >
+                    <div className="w-24 h-24 bg-indigo-600/20 rounded-full flex items-center justify-center border border-indigo-500/30 animate-pulse">
+                      <PlayCircle className="w-12 h-12 text-indigo-400" />
+                    </div>
+                    <div className="text-center space-y-2 px-8">
+                      <h4 className="text-2xl font-black text-white uppercase italic tracking-tighter">Onboarding Video</h4>
+                      <p className="text-slate-500 text-sm font-medium">Your walkthrough video will appear here once the YouTube link is added.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </RevealOnScroll>
 
             {/* Mode Selection Cards */}
             <RevealOnScroll delay={500} className="w-full max-w-6xl space-y-6 md:space-y-8">
@@ -343,14 +387,15 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO, isLoggedIn = false }
         </div>
       </section>
 
+
       {/* Visual Roadmap */}
       <section id="steps" className="py-32 px-6 relative z-10 bg-slate-950/20">
         <div className="max-w-7xl mx-auto space-y-24">
           <div className="text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-indigo-400 text-[10px] font-black uppercase tracking-widest">
-              The Path to Virality
+              The Affiliate Workflow
             </div>
-            <h2 className="text-5xl md:text-7xl font-black text-white italic tracking-tighter uppercase leading-none">NO EDITING. <span className="text-indigo-500">JUST POSTING.</span></h2>
+            <h2 className="text-5xl md:text-7xl font-black text-white italic tracking-tighter uppercase leading-none">FROM LINK TO <span className="text-indigo-500">COMMISSION.</span></h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
@@ -420,10 +465,10 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO, isLoggedIn = false }
             <div className="space-y-10">
               <div className="space-y-4">
                 <div className="inline-flex items-center gap-2 px-4 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-[10px] font-black uppercase tracking-widest">
-                  💰 Earnings Potential
+                  💰 Built for Affiliate Marketers
                 </div>
-                <h3 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase">TURN LINKS INTO <br /> <span className="text-emerald-500">COMMISSIONS.</span></h3>
-                <p className="text-slate-400 text-xl font-medium leading-relaxed">Whether you're an affiliate pro or just starting your journey, ViralLink removes the friction from content creation so you can focus on what matters: <strong className="text-white">converting viewers into buyers</strong>.</p>
+                <h3 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase">YOUR AFFILIATE <br /> <span className="text-emerald-500">GROWTH ENGINE.</span></h3>
+                <p className="text-slate-400 text-xl font-medium leading-relaxed">ViralLink is built <strong className="text-white">specifically for affiliate marketers</strong>. From product discovery to AI-powered content creation, every tool is designed to take your affiliate links and turn clicks into commissions.</p>
               </div>
               <div className="space-y-6">
                 {[
@@ -480,11 +525,11 @@ const LandingPage: React.FC<Props> = ({ onStart, onViewSEO, isLoggedIn = false }
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-indigo-500/5 to-transparent"></div>
           <div className="relative z-10 space-y-8">
             <h2 className="text-7xl md:text-11xl font-black text-white italic leading-[0.75] tracking-tighter uppercase">
-              YOUR VIRAL <br />
-              <span className="text-indigo-500">ERA BEGINS.</span>
+              START EARNING <br />
+              <span className="text-indigo-500">TODAY.</span>
             </h2>
             <p className="text-slate-500 text-xl md:text-2xl font-medium max-w-2xl mx-auto leading-relaxed">
-              Join the thousands of smart marketers turning simple links into engaging stories and real revenue.
+              Join thousands of affiliate marketers who use ViralLink to generate content, grow audiences, and scale their commissions.
             </p>
           </div>
           <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-8 pt-8">

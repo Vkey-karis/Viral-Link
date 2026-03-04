@@ -83,8 +83,7 @@ const UserProfile: React.FC<Props> = ({ session, onBack }) => {
                         <div className="space-y-2">
                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Current Plan</span>
                             <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">
-                                {profile?.subscription_tier === 'premium' ? 'Pro Access' :
-                                    profile?.subscription_tier === 'free' ? 'Starter' : profile?.subscription_tier}
+                                {profile?.subscription_tier === 'premium' ? 'Pro Access' : (profile?.subscription_tier || 'No Active Plan')}
                             </h2>
                         </div>
 
@@ -124,21 +123,7 @@ const UserProfile: React.FC<Props> = ({ session, onBack }) => {
                     </div>
                 </div>
 
-                {/* Upgrade Prompt */}
-                {!profile?.subscription_tier || profile.subscription_tier === 'free' ? (
-                    <div className="p-8 rounded-[2rem] bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-indigo-500/20 flex items-center justify-between">
-                        <div className="space-y-2">
-                            <h3 className="text-xl font-bold text-white">Unlock Professional Features</h3>
-                            <p className="text-slate-400 text-sm max-w-md">Get higher limits, faster limits, and premium templates by upgrading to a Pro plan.</p>
-                        </div>
-                        <button
-                            onClick={() => setShowPricing(true)}
-                            className="px-8 py-3 bg-white text-slate-900 font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all text-xs"
-                        >
-                            View Plans
-                        </button>
-                    </div>
-                ) : null}
+
             </div>
 
             {showPricing && (

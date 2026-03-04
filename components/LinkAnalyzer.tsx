@@ -59,7 +59,7 @@ const ProductImageUploader: React.FC<UploaderProps> = ({ imageData, onUpload, on
           <img src={imageData} alt="Preview" className="max-h-64 w-auto rounded-2xl shadow-2xl ring-1 ring-white/10 object-contain" />
           <button type="button" onClick={onRemove} className="absolute top-4 right-4 p-2.5 bg-slate-900 hover:bg-red-600 text-slate-400 hover:text-white rounded-full transition-all border border-white/10"><X className="w-4 h-4" /></button>
           <div className="mt-6 flex items-center gap-2 px-4 py-2 bg-indigo-500/10 rounded-full border border-indigo-500/20">
-            <Zap className="w-3.5 h-3.5 text-indigo-400" /><span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300">Veo Context Locked</span>
+            <Zap className="w-3.5 h-3.5 text-indigo-400" /><span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300">Image ready for video</span>
           </div>
         </div>
       ) : (
@@ -185,9 +185,9 @@ const LinkAnalyzer: React.FC<Props> = ({ initialMode, onComplete, onBack }) => {
         </div>
         <div className="space-y-4">
           <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase italic">
-            INITIATE <span className="text-indigo-500">EXTRACTION</span>
+            ANALYZE <span className="text-indigo-500">YOUR PRODUCT</span>
           </h2>
-          <p className="text-slate-500 text-lg md:text-xl font-medium max-w-xl mx-auto">Scanning 40+ Marketplaces for High-Search Volume Items.</p>
+          <p className="text-slate-500 text-lg md:text-xl font-medium max-w-xl mx-auto">Paste your affiliate product link and we'll extract everything needed to create viral content.</p>
         </div>
       </div>
 
@@ -242,13 +242,13 @@ const LinkAnalyzer: React.FC<Props> = ({ initialMode, onComplete, onBack }) => {
                   </div>
                   <div className="p-6 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl flex items-center gap-3">
                     <Activity className="w-4 h-4 text-indigo-400 animate-pulse" />
-                    <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Cross-Market Intelligence Engaged</p>
+                    <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Ready to scan 40+ marketplaces</p>
                   </div>
                 </div>
               </div>
 
               <button type="submit" disabled={isLoading} className="w-full py-6 bg-white text-black font-black uppercase tracking-[0.3em] rounded-2xl transition-all hover:scale-[1.02] flex items-center justify-center gap-4 disabled:opacity-50">
-                {isLoading ? <><Loader2 className="w-6 h-6 animate-spin" /> Deep Scraping...</> : <>Begin Extraction <ArrowRight className="w-6 h-6" /></>}
+                {isLoading ? <><Loader2 className="w-6 h-6 animate-spin" /> Analyzing...</> : <>Analyze Product <ArrowRight className="w-6 h-6" /></>}
               </button>
             </form>
           )}

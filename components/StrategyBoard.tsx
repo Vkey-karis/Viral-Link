@@ -153,8 +153,8 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
           <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
         </div>
         <div className="text-center space-y-2">
-          <h3 className="text-3xl font-black text-white italic uppercase">Synthesizing Strategy</h3>
-          <p className="text-slate-500 font-medium">Developing high-retention copy and hooks...</p>
+          <h3 className="text-3xl font-black text-white italic uppercase">Building Your Strategy</h3>
+          <p className="text-slate-500 font-medium">Creating your ad copy and video hooks...</p>
         </div>
       </div>
     );
@@ -190,7 +190,7 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
         className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
       >
         <ChevronRightCircle className="w-5 h-5 rotate-180 group-hover:-translate-x-1 transition-transform" />
-        <span className="text-sm font-black uppercase tracking-widest">Back to Extraction</span>
+        <span className="text-sm font-black uppercase tracking-widest">Back to Product</span>
       </button>
 
       {/* Page Header */}
@@ -198,10 +198,10 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <ShieldCheck className="w-5 h-5 text-indigo-500" />
-            <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.4em]">Strategy Protocol Active</span>
+            <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.4em]">AI Strategy Ready</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase leading-none">
-            CAMPAIGN <span className="text-slate-600">ARCHITECTURE</span>
+            CONTENT <span className="text-slate-600">STRATEGY</span>
           </h1>
         </div>
         <div className="flex bg-white/5 rounded-2xl p-1.5 border border-white/5 shadow-xl">
@@ -247,15 +247,15 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
                       key={i}
                       onClick={() => setSelectedHookIndex(i)}
                       className={`group relative p-4 rounded-xl border transition-all cursor-pointer ${selectedHookIndex === i
-                          ? 'bg-indigo-600/20 border-indigo-500 shadow-[0_0_20px_rgba(79,70,229,0.15)]'
-                          : 'bg-slate-900/60 border-white/5 hover:border-indigo-500/30'
+                        ? 'bg-indigo-600/20 border-indigo-500 shadow-[0_0_20px_rgba(79,70,229,0.15)]'
+                        : 'bg-slate-900/60 border-white/5 hover:border-indigo-500/30'
                         }`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3 flex-1">
                           <div className={`mt-1 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all ${selectedHookIndex === i
-                              ? 'border-indigo-500 bg-indigo-500'
-                              : 'border-slate-600 group-hover:border-indigo-500/50'
+                            ? 'border-indigo-500 bg-indigo-500'
+                            : 'border-slate-600 group-hover:border-indigo-500/50'
                             }`}>
                             {selectedHookIndex === i && (
                               <div className="w-2 h-2 bg-white rounded-full"></div>
@@ -270,8 +270,8 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
                             copyHookToClipboard(hook, i);
                           }}
                           className={`p-2 rounded-lg transition-all ${copiedHook === i
-                              ? 'bg-green-500/20 text-green-400'
-                              : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                            ? 'bg-green-500/20 text-green-400'
+                            : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
                             }`}
                           title="Copy hook"
                         >
@@ -315,7 +315,7 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
             <div className="w-10 h-10 bg-purple-600/10 rounded-xl flex items-center justify-center text-purple-400">
               <Clapperboard className="w-5 h-5" />
             </div>
-            <h2 className="text-2xl font-bold text-white uppercase italic">Production Engine</h2>
+            <h2 className="text-2xl font-bold text-white uppercase italic">Video Settings</h2>
           </div>
 
           {/* Config Controls */}
@@ -323,7 +323,7 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
             <div className="p-1 glass-card rounded-[2.5rem] border-white/5">
               <div className="bg-slate-950/40 p-8 rounded-[2.4rem] space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Select Blueprint</h3>
+                  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Select Video Style</h3>
                   <LayoutTemplate className="w-4 h-4 text-slate-600" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -347,7 +347,7 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
                 </div>
 
                 <div className="pt-6 border-t border-white/5 space-y-4">
-                  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Vocal Persona</h3>
+                  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Choose a Voice</h3>
                   <div className="flex flex-wrap gap-2">
                     {voices.map((v) => (
                       <button
@@ -374,16 +374,16 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
               <div className="px-8 py-5 bg-white/5 border-b border-white/5 flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <Zap className="w-3.5 h-3.5 text-indigo-400" />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Master Script</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Video Script</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-[9px] font-black text-indigo-400 bg-indigo-400/10 px-2 py-0.5 rounded border border-indigo-500/20 uppercase tracking-widest">{duration} Render</span>
+                  <span className="text-[9px] font-black text-indigo-400 bg-indigo-400/10 px-2 py-0.5 rounded border border-indigo-500/20 uppercase tracking-widest">{duration} Video</span>
                   <button
                     onClick={copyScriptToClipboard}
                     disabled={loadingScript || !script}
                     className={`p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${copiedScript
-                        ? 'bg-green-500/20 text-green-400'
-                        : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                      ? 'bg-green-500/20 text-green-400'
+                      : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
                       }`}
                     title="Copy entire script"
                   >
@@ -399,7 +399,7 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
               {loadingScript ? (
                 <div className="h-[400px] flex flex-col items-center justify-center gap-4">
                   <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Compiling Visuals...</p>
+                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Generating script...</p>
                 </div>
               ) : (
                 <div className="max-h-[500px] overflow-y-auto custom-scrollbar divide-y divide-white/5">
@@ -412,7 +412,7 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
                         <div className="space-y-4 w-full">
                           <div className="space-y-1">
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Visual Direction</span>
+                              <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">What You'll See</span>
                               <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white/5 border border-white/10 rounded-lg">
                                 <ChevronRightCircle className="w-2.5 h-2.5 text-indigo-400" />
                                 <span className="text-[8px] font-black text-indigo-400 uppercase tracking-widest">{scene.transition}</span>
@@ -421,7 +421,7 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
                             <p className="text-sm text-slate-200 font-medium leading-relaxed italic">"{scene.visual}"</p>
                           </div>
                           <div className="space-y-1">
-                            <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Vocal Audio</span>
+                            <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">What You'll Hear</span>
                             <p className="text-sm text-white font-black tracking-tight leading-relaxed">"{scene.audio}"</p>
                           </div>
                           {scene.overlayText && (
@@ -444,7 +444,7 @@ const StrategyBoard: React.FC<Props> = ({ productData, onNext, onBack }) => {
             disabled={loadingScript || !script}
             className="w-full py-6 bg-indigo-600 text-white font-black uppercase tracking-[0.4em] rounded-[2rem] shadow-2xl shadow-indigo-600/20 transition-all hover:scale-[1.02] flex items-center justify-center gap-4 disabled:opacity-50"
           >
-            Initiate Veo Rendering
+            Create My Video
             <ArrowRight className="w-6 h-6" />
           </button>
         </div>

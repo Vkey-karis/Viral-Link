@@ -100,7 +100,7 @@ const VideoCreator: React.FC<Props> = ({ script, productData, onComplete, onBack
     setScenes([]);
     setCurrentSceneIndex(0);
     setLogs([]);
-    addLog("Production Engine Initialized.");
+    addLog("Starting video creation.");
 
     const generatedAssets: GeneratedAsset[] = [];
 
@@ -118,26 +118,26 @@ const VideoCreator: React.FC<Props> = ({ script, productData, onComplete, onBack
         if (i > 0) {
           setStage('COOLDOWN');
           setStatus(`Cooling down...`);
-          addLog("Scene buffer cooling down...");
+          addLog("Pausing before next scene...");
           await sleep(5000);
         }
 
-        addLog(`Processing Scene ${i + 1}/${script.scenes.length}`);
+        addLog(`Processing scene ${i + 1} of ${script.scenes.length}`);
 
         setStage('VOICE');
-        setStatus(`Synthesizing Vocal Node...`);
-        addLog(`Vocal Persona: ${script.voiceName}`);
+        setStatus(`Creating voiceover...`);
+        addLog(`Voice: ${script.voiceName}`);
         let audioUrl = await generateSpeech(scene.audio, script.voiceName);
-        addLog(`Audio node generated successfully.`);
+        addLog(`Voiceover ready.`);
 
         setStage('VIDEO');
-        setStatus(`Rendering Cinematic Visuals...`);
-        addLog(`Veo Prompt: "${scene.visual.slice(0, 40)}..."`);
+        setStatus(`Creating video scene...`);
+        addLog(`Video prompt: "${scene.visual.slice(0, 40)}..."`);
         const useImage = (i === 0 && !!productData.imageData);
         if (useImage) addLog("Using Reference Asset for Context.");
 
         let videoUrl = await generateVeoVideo(scene.visual, productData, useImage);
-        addLog(`Visual node rendered.`);
+        addLog(`Scene ready.`);
 
         const asset: GeneratedAsset = {
           sceneIndex: i,
@@ -151,8 +151,8 @@ const VideoCreator: React.FC<Props> = ({ script, productData, onComplete, onBack
         setScenes([...generatedAssets]);
       }
 
-      setStatus("Synthesis Complete.");
-      addLog("Master Export Prepared.");
+      setStatus("All done!");
+      addLog("Your video is ready to download.");
       onComplete(generatedAssets);
 
     } catch (e: any) {
@@ -160,11 +160,10 @@ const VideoCreator: React.FC<Props> = ({ script, productData, onComplete, onBack
       if (e instanceof GeminiApiError) setError({ message: e.message, type: e.type });
       else setError({ message: e.message || "Generation failed. Please try again.", type: 'UNKNOWN' });
       setIsGenerating(false);
-      addLog("CRITICAL ERROR: Production Halted.");
+      addLog("Something went wrong. Stopped.");
     }
   };
 
-  const isFree = userProfile?.subscription_tier === 'free';
   const progress = isGenerating ? ((currentSceneIndex + (stage === 'VIDEO' ? 0.8 : 0.3)) / script.scenes.length) * 100 : 0;
 
   return (
@@ -186,17 +185,11 @@ const VideoCreator: React.FC<Props> = ({ script, productData, onComplete, onBack
           <div className="flex items-center justify-center md:justify-start gap-3">
             <div className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full flex items-center gap-2">
               <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"></div>
-              <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Veo Production Node v3.1</span>
+              <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">AI Video Engine</span>
             </div>
-            {isFree && (
-              <div className="px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center gap-2">
-                <Lock className="w-3 h-3 text-amber-400" />
-                <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Locked</span>
-              </div>
-            )}
           </div>
           <h2 className="text-4xl md:text-7xl font-black text-white italic tracking-tighter uppercase leading-none">
-            PRODUCTION <span className="text-slate-600">STUDIO</span>
+            VIDEO <span className="text-slate-600">STUDIO</span>
           </h2>
         </div>
 
@@ -225,23 +218,6 @@ const VideoCreator: React.FC<Props> = ({ script, productData, onComplete, onBack
           <div className="glass-card rounded-[3.5rem] p-1.5 border-white/5 relative group shadow-[0_50px_100px_rgba(0,0,0,0.5)]">
             <div className="aspect-video bg-slate-950 rounded-[3.4rem] overflow-hidden relative">
 
-              {/* Premium Gate Overlay */}
-              {isFree && (
-                <div className="absolute inset-0 z-50 bg-slate-950/40 backdrop-blur-xl flex flex-col items-center justify-center p-12 text-center animate-in fade-in duration-700">
-                  <div className="w-24 h-24 bg-indigo-600/20 rounded-[2rem] flex items-center justify-center mb-6 border border-indigo-500/30">
-                    <Lock className="w-10 h-10 text-indigo-400" />
-                  </div>
-                  <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-4">ENGINE ACCESS DENIED</h3>
-                  <p className="text-slate-400 text-lg max-w-sm font-medium leading-relaxed mb-8">Upgrade to <span className="text-indigo-400 font-black italic">PRO</span> to unlock high-definition cinematic rendering with Veo 3.1.</p>
-                  <button
-                    onClick={() => setShowPricing(true)}
-                    className="px-10 py-5 bg-indigo-600 text-white font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-indigo-500 hover:scale-105 transition-all shadow-2xl shadow-indigo-600/40 flex items-center gap-4"
-                  >
-                    <Zap className="w-5 h-5 fill-current" /> UNLOCK PRO
-                  </button>
-                </div>
-              )}
-
               {/* Active Render View */}
               {!isGenerating ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center space-y-8 p-10 group-hover:bg-white/[0.02] transition-all">
@@ -249,8 +225,8 @@ const VideoCreator: React.FC<Props> = ({ script, productData, onComplete, onBack
                     <MonitorPlay className="w-10 h-10 text-slate-500 group-hover:text-white" />
                   </div>
                   <div className="text-center space-y-3">
-                    <h4 className="text-2xl font-black text-white uppercase italic tracking-tighter">Ready for Synthesis</h4>
-                    <p className="text-slate-500 text-sm max-w-xs mx-auto">Click initialize below to start the multi-stage AI rendering process.</p>
+                    <h4 className="text-2xl font-black text-white uppercase italic tracking-tighter">Ready to Create</h4>
+                    <p className="text-slate-500 text-sm max-w-xs mx-auto">Click the button below to start generating your video scenes with AI.</p>
                   </div>
                 </div>
               ) : (
@@ -302,7 +278,7 @@ const VideoCreator: React.FC<Props> = ({ script, productData, onComplete, onBack
                 className={`flex-1 py-7 bg-white text-black font-black uppercase tracking-[0.4em] rounded-[2rem] shadow-2xl transition-all hover:scale-[1.02] flex items-center justify-center gap-4 text-xl ${error ? 'border-2 border-red-500/30' : ''}`}
               >
                 {error ? <RefreshCw className="w-6 h-6" /> : <Play className="w-6 h-6 fill-current" />}
-                {error ? 'RE-INITIALIZE ENGINE' : 'ENGAGE FULL RENDER'}
+                {error ? 'TRY AGAIN' : 'CREATE MY VIDEO'}
               </button>
             ) : (
               <div className="flex-1 py-7 bg-white/5 border border-white/5 rounded-[2.5rem] flex items-center justify-center gap-6">
@@ -317,7 +293,7 @@ const VideoCreator: React.FC<Props> = ({ script, productData, onComplete, onBack
                       </div>
                     ))}
                   </div>
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Active Multi-Scene Render</span>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Generating your video...</span>
                 </div>
                 <div className="w-px h-6 bg-white/10"></div>
                 <div className="flex items-center gap-2">
@@ -334,7 +310,7 @@ const VideoCreator: React.FC<Props> = ({ script, productData, onComplete, onBack
                 <AlertTriangle className="w-6 h-6 text-red-400" />
               </div>
               <div className="space-y-2">
-                <h4 className="text-red-400 font-black uppercase text-xs tracking-widest">Production Pipeline Error</h4>
+                <h4 className="text-red-400 font-black uppercase text-xs tracking-widest">Video Creation Error</h4>
                 <p className="text-red-400/70 text-sm font-medium leading-relaxed">{error.message}</p>
                 {error.type === 'API_KEY' && (
                   <button onClick={refreshApiKey} className="mt-4 px-4 py-2 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg">Update Key</button>
@@ -353,7 +329,7 @@ const VideoCreator: React.FC<Props> = ({ script, productData, onComplete, onBack
               <div className="px-8 py-5 border-b border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Film className="w-3.5 h-3.5 text-indigo-400" />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Storyline Assets</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Video Scenes</span>
                 </div>
                 <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">{script.scenes.length} Units</span>
               </div>
@@ -390,10 +366,10 @@ const VideoCreator: React.FC<Props> = ({ script, productData, onComplete, onBack
             <div className="bg-slate-950/40 rounded-[2.4rem] overflow-hidden">
               <div className="px-8 py-4 border-b border-white/5 flex items-center gap-2">
                 <Terminal className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Processing Logs</span>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Progress Log</span>
               </div>
               <div className="p-6 h-[180px] overflow-y-auto font-mono text-[10px] space-y-2 bg-black/20">
-                {logs.length === 0 && <p className="text-slate-700 italic">Waiting for connection...</p>}
+                {logs.length === 0 && <p className="text-slate-700 italic">Waiting to start...</p>}
                 {logs.map((log, i) => (
                   <div key={i} className="flex gap-3 text-slate-500 hover:text-slate-300 transition-colors">
                     <ChevronRight className="w-3 h-3 text-emerald-500 shrink-0 mt-0.5" />

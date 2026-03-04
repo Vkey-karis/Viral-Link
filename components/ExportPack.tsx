@@ -295,7 +295,7 @@ const ExportPack: React.FC<Props> = ({ product, copy, script, assets, onReset, o
           <h2 className="text-5xl md:text-8xl font-black text-white italic tracking-tighter uppercase leading-[0.85]">
             CONTENT <span className="text-emerald-500">READY</span>
           </h2>
-          <p className="text-slate-500 text-lg font-medium max-w-xl mx-auto">Your viral assets are synthesized. Time to share your story with the world.</p>
+          <p className="text-slate-500 text-lg font-medium max-w-xl mx-auto">Your content is ready to post. Share it and start earning commissions.</p>
         </div>
       </div>
 
@@ -341,7 +341,7 @@ const ExportPack: React.FC<Props> = ({ product, copy, script, assets, onReset, o
               </div>
 
               <div className="absolute bottom-8 left-0 right-0 text-center z-40">
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">AI Synthesis Engine • 9:16 Vertical</span>
+                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">ViralLink AI • 9:16 Vertical</span>
               </div>
             </div>
           </div>
@@ -502,7 +502,7 @@ const ExportPack: React.FC<Props> = ({ product, copy, script, assets, onReset, o
             onClick={onReset}
             className="w-full py-8 text-slate-600 hover:text-white font-black uppercase text-xs tracking-[0.3em] flex items-center justify-center gap-4 transition-all"
           >
-            <ArrowLeft className="w-5 h-5" /> Create Another Campaign
+            <ArrowLeft className="w-5 h-5" /> Start Over — Create New Content
           </button>
         </div>
       </div>

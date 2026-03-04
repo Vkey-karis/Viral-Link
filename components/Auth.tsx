@@ -89,9 +89,9 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
             <Sparkles className="w-8 h-8 text-indigo-500" />
           </div>
           <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter">
-            {isLogin ? 'Access Terminal' : 'Create Profile'}
+            {isLogin ? 'Welcome Back' : 'Create Account'}
           </h2>
-          <p className="text-slate-500 text-sm font-medium">Initialize your ViralLink production environment.</p>
+          <p className="text-slate-500 text-sm font-medium">Sign in to start creating affiliate content that converts.</p>
         </div>
 
         {error && (
@@ -183,7 +183,7 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full p-4 bg-slate-950 border border-white/5 rounded-2xl text-white font-bold focus:border-indigo-500 focus:outline-none transition-all"
-              placeholder="operator@nexus.com"
+              placeholder="you@example.com"
               required
             />
           </div>
@@ -205,7 +205,7 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
             disabled={loading}
             className="w-full py-5 bg-indigo-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl hover:scale-[1.02] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
           >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : isLogin ? <><LogIn className="w-5 h-5" /> Initialize</> : <><UserPlus className="w-5 h-5" /> Register</>}
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : isLogin ? <><LogIn className="w-5 h-5" /> Sign In</> : <><UserPlus className="w-5 h-5" /> Create Account</>}
           </button>
         </form>
 
@@ -214,13 +214,13 @@ const Auth: React.FC<Props> = ({ onAuthComplete }) => {
             onClick={() => setIsLogin(!isLogin)}
             className="text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-indigo-400 transition-colors"
           >
-            {isLogin ? "Need a new profile? Create one" : "Already have access? Log in"}
+            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Log in"}
           </button>
         </div>
 
         <div className="flex items-center justify-center gap-2 pt-6 opacity-30">
           <ShieldCheck className="w-3 h-3 text-emerald-500" />
-          <span className="text-[8px] font-black uppercase tracking-widest">Supabase Secure Node</span>
+          <span className="text-[8px] font-black uppercase tracking-widest">Secured & Encrypted</span>
         </div>
       </div>
     </div>
