@@ -10,8 +10,9 @@ import ExportPack from './components/ExportPack';
 import ProjectHistory from './components/ProjectHistory';
 import Auth from './components/Auth';
 import AdminDashboard from './components/AdminDashboard';
-import UserProfile from './components/UserProfile';
-import { supabase } from './services/supabaseClient';
+import UserProfileComponent from './components/UserProfile';
+import { supabase, UserProfile as UserProfileType } from './services/supabaseClient';
+import Pricing from './components/Pricing';
 import { Sparkles, History, Layout, Activity, User, LogOut, Shield } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -23,14 +24,36 @@ const App: React.FC = () => {
   const [assets, setAssets] = useState<GeneratedAsset[]>([]);
   const [session, setSession] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [userProfile, setUserProfile] = useState<UserProfileType | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+
+  const fetchProfile = async (userId: string) => {
+    setProfileLoading(true);
+    try {
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+      if (!error && data) setUserProfile(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      setSession(s);
+      if (s?.user?.id) fetchProfile(s.user.id);
+      else setProfileLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s);
+      if (s?.user?.id) {
+        fetchProfile(s.user.id);
+      } else {
+        setUserProfile(null);
+        setProfileLoading(false);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -83,6 +106,10 @@ const App: React.FC = () => {
 
   const isNavVisible = step !== AppStep.LANDING && step !== AppStep.SEO_GUIDES;
 
+  const isToolStep = [AppStep.INPUT, AppStep.STRATEGY, AppStep.VIDEO, AppStep.EXPORT, AppStep.HISTORY].includes(step as AppStep);
+  const isPremium = userProfile && userProfile.subscription_tier && userProfile.subscription_tier !== 'free';
+  const showPaywall = isToolStep && !profileLoading && !isPremium;
+
   return (
     <div className="min-h-screen text-white selection:bg-indigo-500 selection:text-white relative">
 
@@ -126,6 +153,15 @@ const App: React.FC = () => {
       <main className={`relative z-10 ${step === AppStep.LANDING || step === AppStep.SEO_GUIDES ? 'pt-0' : 'pt-32 pb-20'}`}>
         {!session && step !== AppStep.LANDING && step !== AppStep.SEO_GUIDES ? (
           <Auth onAuthComplete={handleAuthComplete} />
+        ) : profileLoading && isToolStep ? (
+          <div className="min-h-[50vh] flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : showPaywall ? (
+          <>
+            <LandingPage onStart={(mode) => { setSelectedMode(mode); setStep(AppStep.INPUT); }} onViewSEO={() => setStep(AppStep.SEO_GUIDES)} isLoggedIn={!!session} />
+            <Pricing onClose={() => setStep(AppStep.LANDING)} userProfile={userProfile} onPaymentSuccess={() => { if (session?.user?.id) fetchProfile(session.user.id); }} />
+          </>
         ) : (
           <>
             {step === AppStep.LANDING && <LandingPage onStart={(mode) => { setSelectedMode(mode); setStep(AppStep.INPUT); }} onViewSEO={() => setStep(AppStep.SEO_GUIDES)} isLoggedIn={!!session} />}
@@ -143,7 +179,7 @@ const App: React.FC = () => {
             )}
             {step === AppStep.PROFILE && (
               <div className="animate-fade-in">
-                <UserProfile session={session} onBack={() => setStep(AppStep.LANDING)} />
+                <UserProfileComponent session={session} onBack={() => setStep(AppStep.LANDING)} />
               </div>
             )}
             {step === 7 && isAdmin && (
